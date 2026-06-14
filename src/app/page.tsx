@@ -39,6 +39,7 @@ import { PipelineHealthPage } from '@/components/riya/PipelineHealthPage'
 import { MyPerformancePage } from '@/components/riya/MyPerformancePage'
 import { MyActivityPage } from '@/components/riya/MyActivityPage'
 import { NotificationsPage } from '@/components/riya/NotificationsPage'
+import { NiviAssistantPage } from '@/components/riya/NiviAssistantPage'
 
 function RiyaDashboard({ activeTab, onTabChange }: { activeTab: RiyaTab; onTabChange: (t: RiyaTab) => void }) {
   const [teamMemberId, setTeamMemberId] = useState('')
@@ -63,6 +64,7 @@ function RiyaDashboard({ activeTab, onTabChange }: { activeTab: RiyaTab; onTabCh
       {activeTab === 'performance' && <MyPerformancePage />}
       {activeTab === 'activity' && <MyActivityPage teamMemberId={teamMemberId} />}
       {activeTab === 'notifications' && <NotificationsPage />}
+      {activeTab === 'nivi' && <NiviAssistantPage />}
       <MobileBottomNav activeTab={activeTab} onTabChange={onTabChange} />
     </>
   )

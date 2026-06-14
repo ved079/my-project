@@ -1,7 +1,7 @@
 'use client'
 
 import {
-  Home, ListTodo, Inbox, BarChart3, Clock, Bell, MessageSquare, Sparkles, Activity,
+  Home, ListTodo, Inbox, BarChart3, Clock, Bell, MessageSquare, Sparkles, Activity, Bot,
 } from 'lucide-react'
 import type { RiyaTab } from '@/lib/types'
 
@@ -17,6 +17,7 @@ export function RiyaSidebar({ activeTab, onTabChange }: { activeTab: RiyaTab; on
   const quickItems: Array<{ tab?: RiyaTab; icon: typeof Bell; label: string; badge?: string; soon?: boolean }> = [
     { tab: 'activity', icon: Clock, label: 'My Activity' },
     { tab: 'notifications', icon: Bell, label: 'Notifications', badge: '3' },
+    { tab: 'nivi', icon: Bot, label: 'Nivi AI', badge: '4' },
     { icon: MessageSquare, label: 'WhatsApp', soon: false },
   ]
 

@@ -1795,13 +1795,20 @@ html { scroll-behavior: smooth; }
 .toast.toast-info .toast-icon { color: #2563EB; }
 
 /* ════════════════════════════════════════════════════════════════
-   LIVE TIMER
-   ════════════════════════════════════════════════════════════════ */
+    LIVE TIMER
+    ════════════════════════════════════════════════════════════════ */
 @keyframes timerPulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
 .timer-pulse { animation: timerPulse 1s ease-in-out infinite; }
+
+/* Nivi typing dots */
+@keyframes niviTyping {
+  0%, 80%, 100% { opacity: 0.2; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-3px); }
+}
+.nivi-typing-dot { animation: niviTyping 1.4s ease-in-out infinite; }
 
 /* ════════════════════════════════════════════════════════════════
    TOGGLE SWITCH
