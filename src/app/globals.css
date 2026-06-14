@@ -2235,6 +2235,33 @@ html { scroll-behavior: smooth; }
   color: var(--navy);
 }
 
+/* Lead Scoring Table */
+.riya-score-row { transition: background 0.1s ease; }
+.riya-score-row:hover { background: #F9FAFB; }
+.riya-score-tier-hot .riya-score-badge { background: #FEF2F2; color: #BB2026; font-weight: 700; }
+.riya-score-tier-warm .riya-score-badge { background: #FFFBEB; color: #D97706; font-weight: 700; }
+.riya-score-tier-cold .riya-score-badge { background: #F3F4F6; color: #6B7280; font-weight: 600; }
+.riya-score-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+}
+.riya-score-tier-hot > td:first-child .riya-score-tier-hot { background: #FEF2F2; color: #BB2026; }
+.riya-score-tier-warm > td:first-child .riya-score-tier-warm { background: #FFFBEB; color: #D97706; }
+.riya-score-tier-cold > td:first-child .riya-score-tier-cold { background: #F3F4F6; color: #6B7280; }
+.riya-score-row.riya-score-tier-hot { border-left: 3px solid #BB2026; }
+.riya-score-row.riya-score-tier-warm { border-left: 3px solid #D97706; }
+.riya-score-row.riya-score-tier-cold { border-left: 3px solid #E5E7EB; }
+
+.score-hot { background: #FEF2F2; color: #BB2026; }
+.score-warm { background: #FFFBEB; color: #D97706; }
+.score-cold { background: #F3F4F6; color: #6B7280; }
+
 /* Command Center Row */
 .riya-command-row {
   display: grid;

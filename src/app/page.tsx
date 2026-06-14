@@ -34,6 +34,7 @@ import { ROICalcPage } from '@/components/pages/ROICalcPage'
 import { CommandCenterPage } from '@/components/riya/CommandCenterPage'
 import { MyTasksPage } from '@/components/riya/MyTasksPage'
 import { MyInquiriesPage } from '@/components/riya/MyInquiriesPage'
+import { LeadScoringPage } from '@/components/riya/LeadScoringPage'
 import { MyPerformancePage } from '@/components/riya/MyPerformancePage'
 import { MyActivityPage } from '@/components/riya/MyActivityPage'
 import { NotificationsPage } from '@/components/riya/NotificationsPage'
@@ -56,6 +57,7 @@ function RiyaDashboard({ activeTab, onTabChange }: { activeTab: RiyaTab; onTabCh
       {activeTab === 'command' && <CommandCenterPage />}
       {activeTab === 'tasks' && <MyTasksPage />}
       {activeTab === 'inquiries' && <MyInquiriesPage />}
+      {activeTab === 'scoring' && <LeadScoringPage />}
       {activeTab === 'performance' && <MyPerformancePage />}
       {activeTab === 'activity' && <MyActivityPage teamMemberId={teamMemberId} />}
       {activeTab === 'notifications' && <NotificationsPage />}
