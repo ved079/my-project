@@ -12,4 +12,4 @@ export interface ToastItem { id: number; message: string; type: ToastType; exiti
 
 export type ViewMode = 'admin' | 'riya'
 
-export type RiyaTab = 'command' | 'tasks' | 'inquiries' | 'scoring' | 'performance' | 'activity' | 'notifications'
+export type RiyaTab = 'command' | 'tasks' | 'inquiries' | 'scoring' | 'pipeline' | 'performance' | 'activity' | 'notifications'

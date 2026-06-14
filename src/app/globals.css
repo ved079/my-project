@@ -2262,6 +2262,28 @@ html { scroll-behavior: smooth; }
 .score-warm { background: #FFFBEB; color: #D97706; }
 .score-cold { background: #F3F4F6; color: #6B7280; }
 
+/* Pipeline Health */
+.ph-level-critical { color: #BB2026; }
+.ph-level-high { color: #D97706; }
+.ph-level-medium { color: #6B7280; }
+.ph-level-dot.ph-level-critical { background: #BB2026; }
+.ph-level-dot.ph-level-high { background: #D97706; }
+.ph-level-dot.ph-level-medium { background: #6B7280; }
+.ph-badge-critical { background: #FEF2F2; color: #BB2026; }
+.ph-badge-high { background: #FFFBEB; color: #D97706; }
+.ph-badge-medium { background: #F3F4F6; color: #6B7280; }
+.ph-tier-hot { background: #FEF2F2; color: #BB2026; }
+.ph-tier-warm { background: #FFFBEB; color: #D97706; }
+.ph-tier-cold { background: #F3F4F6; color: #6B7280; }
+.ph-alert-card { border-left: 3px solid transparent; transition: box-shadow 0.15s ease; }
+.ph-alert-card:hover { box-shadow: 0 2px 8px rgba(17,24,39,0.06); }
+.ph-alert-card.ph-level-critical { border-left-color: #BB2026; }
+.ph-alert-card.ph-level-high { border-left-color: #D97706; }
+.ph-alert-card.ph-level-medium { border-left-color: #6B7280; }
+.ph-score-hot { background: #FEF2F2; color: #BB2026; }
+.ph-score-warm { background: #FFFBEB; color: #D97706; }
+.ph-score-cold { background: #F3F4F6; color: #6B7280; }
+
 /* Command Center Row */
 .riya-command-row {
   display: grid;
