@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id          String       @id @default(cuid())
+  name        String
+  industry    String       @default("Healthcare")
+  location    String       @default("")
+  slaMinutes  Int          @default(30)
+  logo        String       @default("")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  leads       Lead[]
+  teamMembers TeamMember[]
+}
+
+model TeamMember {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  role          String         @default("lead_exec")
+  avatar        String         @default("")
+  initials      String         @default("")
+  leads         Lead[]
+  activity      ActivityLog[]
+  leadNotes     LeadNote[]
+  statusChanges StatusChange[]
+  clients       Client[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Lead {
+  id            String         @id @default(cuid())
+  name          String
+  phone         String
+  phoneMasked   String         @default("")
+  email         String         @default("")
+  service       String
+  source        String
+  location      String         @default("")
+  status        String         @default("New")
+  assignedTo    TeamMember?    @relation(fields: [assignedToId], references: [id])
+  assignedToId  String?
+  client        Client         @relation(fields: [clientId], references: [id])
+  clientId      String
+  inquiryTime   DateTime
+  slaDeadline   DateTime
+  cost          Float          @default(0)
+  utmSource     String         @default("")
+  utmMedium     String         @default("")
+  utmCampaign   String         @default("")
+  flaggedAs     String         @default("")
+  notes         LeadNote[]
+  statusHistory StatusChange[]
+  activity      ActivityLog[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model LeadNote {
+  id             String      @id @default(cuid())
+  lead           Lead        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  leadId         String
+  teamMember     TeamMember  @relation(fields: [teamMemberId], references: [id])
+  teamMemberId   String
+  content        String
+  createdAt      DateTime    @default(now())
+}
+
+model StatusChange {
+  id             String      @id @default(cuid())
+  lead           Lead        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  leadId         String
+  teamMember     TeamMember? @relation(fields: [teamMemberId], references: [id])
+  teamMemberId   String?
+  fromStatus     String
+  toStatus       String
+  createdAt      DateTime    @default(now())
+}
+
+model NiviConversation {
+  id              String         @id @default(cuid())
+  patientName     String         @default("")
+  patientPhone    String         @default("")
+  status          String         @default("active")
+  unreadCount     Int            @default(1)
+  escalatedTo     String?
+  escalatedAt     DateTime?
+  escalationReason String?
+  contextData     String         @default("{}")
+  lastSuggestions String         @default("[]")
+  lastActivity    DateTime       @default(now())
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  messages        NiviMessage[]
+}
+
+model NiviMessage {
+  id             String          @id @default(cuid())
+  conversation   NiviConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversationId String
+  from           String
+  text           String
+  confidence     String?
+  intent         String?
+  sentiment      String?
+  createdAt      DateTime        @default(now())
+}
+
+model ActivityLog {
+  id             String      @id @default(cuid())
+  teamMember     TeamMember  @relation(fields: [teamMemberId], references: [id])
+  teamMemberId   String
+  lead           Lead?       @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  leadId         String?
+  action         String
+  detail         String
+  createdAt      DateTime    @default(now())
+}
