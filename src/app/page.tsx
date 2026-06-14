@@ -88,6 +88,7 @@ export default function NewmiMarketingOS() {
   const [riyaTab, setRiyaTab] = useState<RiyaTab>('command')
   const navToPage = useCallback((p: Page) => { window.scrollTo(0, 0); setActivePage(p) }, [])
   const navToTab = useCallback((t: RiyaTab) => { window.scrollTo(0, 0); setRiyaTab(t) }, [])
+  const switchView = useCallback((v: ViewMode) => { window.scrollTo(0, 0); setViewMode(v) }, [])
   const [cmdOpen, setCmdOpen] = useState(false)
   const toasts = useToastStore(s => s.toasts)
 
@@ -141,7 +142,7 @@ export default function NewmiMarketingOS() {
   return (
     <div className="app-root">
       {viewMode === 'landing' ? (
-        <LandingPage onViewChange={setViewMode} />
+        <LandingPage onViewChange={switchView} />
       ) : (
         <>
           <ToastContainer toasts={toasts} />
@@ -156,9 +157,9 @@ export default function NewmiMarketingOS() {
             )}
             <div className="dash-main">
               {viewMode === 'admin' ? (
-                <Topbar active={activePage} dateRange={dateRange} onDateRangeChange={setDateRange} darkMode={darkMode} onToggleDark={() => setDarkMode(d => !d)} onOpenCmd={() => setCmdOpen(true)} addToast={addToast} viewMode={viewMode} onViewChange={setViewMode} />
+                <Topbar active={activePage} dateRange={dateRange} onDateRangeChange={setDateRange} darkMode={darkMode} onToggleDark={() => setDarkMode(d => !d)} onOpenCmd={() => setCmdOpen(true)} addToast={addToast} viewMode={viewMode} onViewChange={switchView} />
               ) : (
-                <RiyaTopbar activeTab={riyaTab} viewMode={viewMode} onViewChange={setViewMode} />
+                <RiyaTopbar activeTab={riyaTab} viewMode={viewMode} onViewChange={switchView} />
               )}
               <main className="dash-content" style={{ paddingBottom: viewMode === 'riya' ? '72px' : undefined }}>
                 {viewMode === 'admin' ? renderPage() : <RiyaDashboard activeTab={riyaTab} onTabChange={navToTab} />}
