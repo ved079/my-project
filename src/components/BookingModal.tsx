@@ -5,6 +5,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog'
 import { CheckCircle, Phone, MessageCircle, ArrowLeft } from 'lucide-react'
+import { captureUTM, persistUTM, getStoredUTM } from '@/lib/utm'
 
 const CONDITIONS = [
   { id: 'pcos', label: 'PCOS/PCOD' },
@@ -60,12 +61,31 @@ export function BookingModal({
     onOpenChange(v)
   }
 
-  const confirmBooking = () => {
+  const confirmBooking = async () => {
     setConfirmed(true)
     if (phone) {
       const msg = encodeURIComponent(
         `Hi Newmi Care! I'd like to book a consultation for ${condition || 'a health concern'}. My number is ${phone}.`
       )
+      const utm = { ...getStoredUTM(), ...captureUTM() }
+      if (utm.utmSource || utm.utmMedium || utm.utmCampaign) persistUTM(utm)
+      fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `Booking: ${condition || 'General'}`,
+          phone,
+          email: '',
+          service: condition || 'General',
+          source: 'booking_modal',
+          location: 'Website',
+          inquiryTime: new Date().toISOString(),
+          slaDeadline: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+          utmSource: utm.utmSource || '',
+          utmMedium: utm.utmMedium || '',
+          utmCampaign: utm.utmCampaign || '',
+        }),
+      }).catch(() => {})
       window.open(`https://wa.me/918929345355?text=${msg}`, '_blank')
     }
   }

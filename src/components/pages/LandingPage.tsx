@@ -7,14 +7,16 @@ import {
   MapPin, Video, Building2, Dumbbell, Brain, Flower2, Baby, HeartPulse,
   HandHeart, Moon, Ribbon, Stethoscope, Menu, X, Phone, Mail, MessageCircle,
   Quote, Activity, BookOpen, ClipboardCheck, FileText, Pill, TestTube,
-  Calendar, Instagram, Facebook, Linkedin, Twitter, MessageSquare,
+  Calendar, Instagram, Facebook, Linkedin, Twitter, MessageSquare, Lock, Search, Sparkles,
 } from 'lucide-react'
+import { captureUTM, persistUTM } from '@/lib/utm'
 import type { ViewMode } from '@/lib/types'
 import { SPECIALISTS } from '@/lib/nivi/specialists'
 import {
   Accordion, AccordionItem, AccordionTrigger, AccordionContent,
 } from '@/components/ui/accordion'
 import { BookingModal } from '@/components/BookingModal'
+import { SymptomCheckerWidget } from '@/components/SymptomCheckerWidget'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger,
 } from '@/components/ui/dialog'
@@ -45,12 +47,14 @@ function openWhatsApp(msg?: string) {
 }
 
 const FAQ_ITEMS = [
-  { q: 'What is the cost of PCOS treatment at Newmi Care?', a: 'PCOS treatment consultation at Newmi Care starts from ₹800. The exact cost depends on the diagnostic tests and treatment plan recommended by our specialists.' },
-  { q: 'Does Newmi Care offer IVF treatment?', a: 'Yes, Newmi Care offers comprehensive fertility and IVF treatment with experienced specialists. IVF treatment costs range from ₹1.2L to ₹2.5L depending on the treatment protocol.' },
-  { q: 'Where are Newmi Care clinics located?', a: 'Newmi Care has clinics in Gurugram — at Spaze Corporate Park, Sector 69 and Bestech Central Square Mall, Sector 57. We also offer pan-India digital consultations.' },
-  { q: 'Can I book an online consultation with a gynecologist?', a: 'Yes, Newmi Care offers secure video consultations with experienced gynecologists. You can book instantly through our platform and consult from the comfort of your home.' },
-  { q: "What women's health services does Newmi Care provide?", a: 'Comprehensive services including PCOS/PCOD management, fertility treatment, IVF, pregnancy care, post-pregnancy support, menopause treatment, mental health support, and preventive health screenings.' },
-  { q: 'Is Newmi Care safe and confidential?', a: 'Absolutely. Newmi Care is HIPAA-compliant. All consultations, medical records, and personal information are encrypted and securely stored.' },
+  { q: "What conditions does Newmi Care treat?", a: "Newmi Care specializes in women's health across every life stage — from puberty to menopause. Our care plans cover PCOS/PCOD, fertility issues, pregnancy and postpartum care, mental health, weight management, menopause, cancer support, pediatric care, and sexual health. Each plan is designed by specialist gynecologists, endocrinologists, and therapists." },
+  { q: "Do I need a referral to book a consultation?", a: "No referral is needed. You can book a consultation directly through our website, app, or by calling +91-8929345355. Our team will match you with the right specialist based on your concern." },
+  { q: "Are online consultations available?", a: "Yes, Newmi offers secure video consultations with qualified specialists across women's health. You can book a digital consultation through the Newmi app or website, available Monday to Saturday, 9 AM to 9 PM. All consultations are private and HIPAA-compliant." },
+  { q: "What are Newmi's clinic locations?", a: "Newmi currently operates clinics in Gurugram — at Sector 69 (Spaze Corporate Park) and Sector 57 (Bestech Central Square Mall). Both clinics offer consultation, pathology, radiology, medicines, vaccination, wellness, and physiotherapy services. We are expanding to more cities soon." },
+  { q: "Is my health information kept private?", a: "Absolutely. Newmi Care is HIPAA, GDPR, and ISO compliant. Your health data is encrypted, and we follow the highest standards of data privacy. We never share your information without your explicit consent." },
+  { q: "How much does a consultation cost?", a: "Consultation fees vary by specialist and condition. Our care plans are designed to be affordable, and we offer both in-clinic and digital consultation options. Contact us at +91-8929345355 or care@newmi.in for specific pricing." },
+  { q: "Can I use Newmi for pregnancy care from the beginning?", a: "Yes, Newmi provides end-to-end prenatal care from the first trimester through delivery and postpartum. Our pregnancy care plan includes regular check-ups, ultrasound scheduling, nutrition planning, high-risk monitoring, prenatal yoga, and emergency support." },
+  { q: "Does Newmi accept insurance?", a: "Newmi works with employers and insurance providers through our Smart OPD program to make outpatient care accessible and affordable. Contact our team to check if your insurance plan covers Newmi services." },
 ]
 
 const TESTIMONIALS = [
@@ -69,17 +73,26 @@ const WHY_NEWMI = [
   { icon: TrendingUp, title: 'Proven Results', desc: 'Trusted by thousands of women across the country for their healthcare needs.' },
 ]
 
-const CARE_PLANS_DATA: Record<string, { condition: string; symptoms: string[]; expectation: string; docIdx: number }> = {
-  'Weight Loss': { condition: 'Weight Loss', symptoms: ['Unexplained weight gain', 'Difficulty losing weight', 'Metabolic concerns', 'Hormonal weight changes'], expectation: 'Personalised nutrition and fitness plan with medical supervision.', docIdx: 2 },
-  'Mental Health': { condition: 'Mental Health', symptoms: ['Anxiety and depression', 'Postpartum emotional changes', 'Pregnancy-related stress', 'Body image concerns'], expectation: 'Private counselling sessions with therapists specialised in women\'s mental health.', docIdx: 0 },
-  'PCOS/PCOD': { condition: 'PCOS/PCOD', symptoms: ['Irregular or missed periods', 'Excess hair growth or hair loss', 'Weight gain and fatigue', 'Acne and skin changes'], expectation: 'Initial consultation includes blood work, ultrasound, and a personalised treatment plan.', docIdx: 2 },
-  'Fertility': { condition: 'Fertility/IVF', symptoms: ['Difficulty conceiving after 6+ months', 'Irregular ovulation cycles', 'Previous pregnancy loss', 'Male factor infertility'], expectation: 'Comprehensive fertility assessment followed by a customised treatment roadmap.', docIdx: 1 },
-  'Pregnancy': { condition: 'Pregnancy Care', symptoms: ['First trimester guidance', 'Nutrition and lifestyle planning', 'High-risk pregnancy monitoring', 'Birth planning support'], expectation: 'Regular check-ups, screenings, and 24/7 access to your care team.', docIdx: 0 },
-  'Post Pregnancy': { condition: 'Post Pregnancy', symptoms: ['Postpartum recovery concerns', 'Breastfeeding challenges', 'Weight management after birth', 'Emotional adjustment'], expectation: 'Comprehensive postpartum support including physical and emotional wellness.', docIdx: 0 },
-  'Menopause': { condition: 'Menopause', symptoms: ['Hot flashes and night sweats', 'Mood swings and sleep issues', 'Vaginal dryness', 'Weight and metabolism changes'], expectation: 'Personalised symptom management plan including lifestyle and medical options.', docIdx: 2 },
-  'Cancer Support': { condition: 'Gynecologic Cancer', symptoms: ['Abnormal bleeding', 'Pelvic pain or pressure', 'Post-menopausal bleeding', 'Family history of cancer'], expectation: 'Comprehensive cancer screening, diagnosis, and treatment planning.', docIdx: 4 },
-  'Pediatric Care': { condition: 'Pediatric Care', symptoms: ['Childhood developmental concerns', 'Nutrition and growth tracking', 'Vaccination schedules', 'Common childhood illnesses'], expectation: 'Family-centered pediatric care with preventive health focus.', docIdx: 0 },
-  'Sexual Health': { condition: 'Sexual Health', symptoms: ['Pain during intercourse', 'Low libido', 'Recurrent infections', 'Contraception counselling'], expectation: 'Confidential, non-judgmental consultation with expert guidance.', docIdx: 3 },
+interface CarePlanDetail {
+  condition: string
+  description: string
+  includes: string[]
+  symptoms: string[]
+  expectation: string
+  docIdx: number
+}
+
+const CARE_PLANS_DATA: Record<string, CarePlanDetail> = {
+  'Weight Loss': { condition: 'Weight Loss', description: 'Personalized weight management with nutritionists, fitness experts, and medical supervision for sustainable, healthy results.', includes: ['Custom diet plans', 'Yoga & fitness sessions', 'Weekly check-ins', 'Metabolic profiling', 'Behavioral coaching', 'Progress tracking'], symptoms: ['Unexplained weight gain', 'Difficulty losing weight', 'Metabolic concerns', 'Hormonal weight changes'], expectation: 'Personalised nutrition and fitness plan with medical supervision.', docIdx: 2 },
+  'Mental Health': { condition: 'Mental Health', description: 'Compassionate mental health support with licensed therapists and psychiatrists specializing in women\'s emotional wellbeing.', includes: ['Therapy sessions', 'Anxiety & depression management', 'Stress management tools', 'Mindfulness programs', 'Psychiatric consultation', 'Crisis support resources'], symptoms: ['Anxiety and depression', 'Postpartum emotional changes', 'Pregnancy-related stress', 'Body image concerns'], expectation: 'Private counselling sessions with therapists specialised in women\'s mental health.', docIdx: 0 },
+  'PCOS/PCOD': { condition: 'PCOS/PCOD', description: 'Comprehensive PCOS management addressing hormonal imbalance, irregular periods, and metabolic concerns with specialist guidance.', includes: ['Hormonal profiling', 'Period regulation plan', 'Diet & lifestyle coaching', 'Fertility guidance', 'Insulin resistance management', 'Dermatological support'], symptoms: ['Irregular or missed periods', 'Excess hair growth or hair loss', 'Weight gain and fatigue', 'Acne and skin changes'], expectation: 'Initial consultation includes blood work, ultrasound, and a personalised treatment plan.', docIdx: 2 },
+  'Fertility': { condition: 'Fertility/IVF', description: 'Evidence-based fertility support from evaluation through treatment, with empathetic care at every step of your journey.', includes: ['Fertility assessment', 'Ovulation tracking', 'IUI/IVF counseling', 'Partner testing', 'Emotional support', 'Treatment coordination'], symptoms: ['Difficulty conceiving after 6+ months', 'Irregular ovulation cycles', 'Previous pregnancy loss', 'Male factor infertility'], expectation: 'Comprehensive fertility assessment followed by a customised treatment roadmap.', docIdx: 1 },
+  'Pregnancy': { condition: 'Pregnancy Care', description: 'End-to-end prenatal care ensuring a healthy pregnancy with regular monitoring, nutrition guidance, and expert consultations.', includes: ['Prenatal check-ups', 'Ultrasound scheduling', 'Nutrition planning', 'High-risk monitoring', 'Prenatal yoga', 'Emergency support line'], symptoms: ['First trimester guidance', 'Nutrition and lifestyle planning', 'High-risk pregnancy monitoring', 'Birth planning support'], expectation: 'Regular check-ups, screenings, and 24/7 access to your care team.', docIdx: 0 },
+  'Post Pregnancy': { condition: 'Post Pregnancy', description: 'Postpartum recovery and newborn care support designed for new mothers navigating the fourth trimester.', includes: ['Postnatal check-ups', 'Breastfeeding support', 'Baby massage sessions', 'Postpartum yoga', 'Mental health screening', 'Vaccination tracking'], symptoms: ['Postpartum recovery concerns', 'Breastfeeding challenges', 'Weight management after birth', 'Emotional adjustment'], expectation: 'Comprehensive postpartum support including physical and emotional wellness.', docIdx: 0 },
+  'Menopause': { condition: 'Menopause', description: 'Compassionate menopause management helping you navigate hot flashes, mood changes, and long-term health with expert care.', includes: ['Symptom management', 'Hormone therapy guidance', 'Bone health screening', 'Heart health monitoring', 'Emotional support', 'Lifestyle modification'], symptoms: ['Hot flashes and night sweats', 'Mood swings and sleep issues', 'Vaginal dryness', 'Weight and metabolism changes'], expectation: 'Personalised symptom management plan including lifestyle and medical options.', docIdx: 2 },
+  'Cancer Support': { condition: 'Gynecologic Cancer', description: 'Specialized oncology support with a women-focused approach from diagnosis through recovery and survivorship.', includes: ['Oncologist consultations', 'Treatment coordination', 'Emotional counseling', 'Nutrition during treatment', 'Pain management', 'Survivorship program'], symptoms: ['Abnormal bleeding', 'Pelvic pain or pressure', 'Post-menopausal bleeding', 'Family history of cancer'], expectation: 'Comprehensive cancer screening, diagnosis, and treatment planning.', docIdx: 4 },
+  'Pediatric Care': { condition: 'Pediatric Care', description: 'Expert pediatric care for your child\'s health, growth, and development in a safe, child-friendly environment.', includes: ['Growth monitoring', 'Vaccination schedule', 'Developmental assessments', 'Nutrition guidance', 'Illness management', 'Parent counseling'], symptoms: ['Childhood developmental concerns', 'Nutrition and growth tracking', 'Vaccination schedules', 'Common childhood illnesses'], expectation: 'Family-centered pediatric care with preventive health focus.', docIdx: 0 },
+  'Sexual Health': { condition: 'Sexual Health', description: 'Confidential, judgment-free sexual health consultations addressing concerns from intimacy to infections.', includes: ['Discreet consultations', 'STI screening', 'Hormonal evaluation', 'Relationship counseling', 'Treatment plans', 'Follow-up care'], symptoms: ['Pain during intercourse', 'Low libido', 'Recurrent infections', 'Contraception counselling'], expectation: 'Confidential, non-judgmental consultation with expert guidance.', docIdx: 3 },
 }
 
 const CARE_PLANS_ITEMS = [
@@ -125,10 +138,10 @@ const CONDITION_PATHWAYS = [
 ]
 
 const LIVE_STATS = [
-  { label: 'consultations today', value: 47, suffix: '' },
-  { label: 'avg response time', value: 3.2, suffix: ' min' },
-  { label: 'patient satisfaction', value: 92, suffix: '%' },
-  { label: 'conversions this month', value: 38, suffix: '' },
+  { label: 'Women Served', value: 50000, suffix: '+', format: (v: number) => v >= 1000 ? Math.round(v / 1000) + 'K' : String(v) },
+  { label: 'Cities Covered', value: 25, suffix: '+', format: (v: number) => String(v) },
+  { label: 'Patient Satisfaction', value: 5, suffix: '', format: (v: number) => v < 1 ? '0' : v < 5 ? String(Math.max(v, 1)) : '4.9' },
+  { label: 'Safe & Secure', value: 100, suffix: '%', format: (v: number) => String(v) },
 ]
 
 const TRUST_BADGES = [
@@ -137,6 +150,27 @@ const TRUST_BADGES = [
   { label: 'ISO Certified', img: '/images/newmi/iso-logo.png' },
   { label: '10,000+ Consults', icon: Heart, img: null },
   { label: '5 Specialists', icon: Stethoscope, img: null },
+]
+
+const TRIAGE_STEPS = [
+  { question: 'What brings you here today?', options: ['Irregular periods', 'Difficulty conceiving', 'Pregnancy care', 'Weight concerns', 'Mood & anxiety', 'Menopause symptoms'] },
+  { question: 'How long has this been affecting you?', options: ['Just started (days)', 'A few weeks', 'A few months', 'Over a year'] },
+  { question: 'What type of care do you prefer?', options: ['Online consultation', 'In-clinic visit', 'Care plan with specialist', 'Just exploring'] },
+]
+
+const TRIAGE_RESULTS: Record<string, string> = {
+  'Irregular periods': 'PCOS/PCOD',
+  'Difficulty conceiving': 'Fertility',
+  'Pregnancy care': 'Pregnancy',
+  'Weight concerns': 'Weight Management',
+  'Mood & anxiety': 'Mental Health',
+  'Menopause symptoms': 'Menopause',
+}
+
+const FOUNDERS = [
+  { name: 'Sanchit Agarwal', title: 'Co-Founder & CEO', image: '/images/newmi/sanchit-agarwal.jpg', story: 'Survived a fatal accident and turned recovery into purpose', credential: '25+ years in Healthcare & Finance. Ex-Global MD at Accenture, Deloitte, Barclays' },
+  { name: 'Aditi Mittal', title: 'Co-Founder & COO', image: '/images/newmi/Aditi Mittal.jpg', story: 'Conquered cancer twice and gave birth with courage', credential: '2X Cancer Survivor. Public Speaker on Cancer. Ex-Head Designer at Sabyasachi' },
+  { name: 'Anushri Agarwal', title: 'Co-Founder & CBO', image: '/images/newmi/Anushri Agarwal.jpg', story: 'Making healthcare accessible through innovative insurance solutions', credential: '17+ years in Business Development, Technology & Healthcare. Insurance & Employee Benefits Expert' },
 ]
 
 const QUICK_LINKS = ['About', 'Our Specialities', 'Meet Our Doctors', 'How It Works', 'Why Newmi Care']
@@ -187,12 +221,38 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
   const [expandedPathway, setExpandedPathway] = useState<string | null>(null)
   const [showSticky, setShowSticky] = useState(false)
   const [stickyCtaLabel, setStickyCtaLabel] = useState("Talk to a Specialist")
+  const [email, setEmail] = useState('')
+  const [subscribed, setSubscribed] = useState(false)
+  const [emailError, setEmailError] = useState('')
+  const [subscribing, setSubscribing] = useState(false)
+  const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)
+  const subscribe = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setEmailError('')
+    if (!email.trim()) { setEmailError('Please enter your email'); return }
+    if (!isValidEmail(email.trim())) { setEmailError('Please enter a valid email address'); return }
+    setSubscribing(true)
+    try {
+      const res = await fetch('/api/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email.trim() }) })
+      if (!res.ok) throw new Error()
+      setSubscribed(true); setEmail('')
+    } catch { setEmailError('Something went wrong. Please try again.') }
+    setSubscribing(false)
+  }
+  const [stickyVisible, setStickyVisible] = useState(true)
   const [bookingOpen, setBookingOpen] = useState(false)
   const [preSelectedCondition, setPreSelectedCondition] = useState<string | undefined>(undefined)
   const [exitOpen, setExitOpen] = useState(false)
   const [carePlanDetail, setCarePlanDetail] = useState<string | null>(null)
   const [testimonialIdx, setTestimonialIdx] = useState(0)
   const [animatedStats, setAnimatedStats] = useState<number[]>([0, 0, 0, 0])
+  const [availabilityDot, setAvailabilityDot] = useState<'green' | 'yellow' | 'red'>('green')
+  const [availabilityText, setAvailabilityText] = useState('')
+  const [socialToast, setSocialToast] = useState({ show: false, message: '', id: 0 })
+  const [triageOpen, setTriageOpen] = useState(false)
+  const [symptomCheckOpen, setSymptomCheckOpen] = useState(false)
+  const [triageStep, setTriageStep] = useState(0)
+  const [triageAnswers, setTriageAnswers] = useState<string[]>([])
   const countRef = useRef<HTMLSpanElement>(null)
   const counted = useRef(false)
   const statsAnimated = useRef(false)
@@ -225,6 +285,7 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
   }, [carouselPaused, N])
 
   useEffect(() => {
+    persistUTM(captureUTM())
     const t = setInterval(() => {
       setConcernFade(false)
       setTimeout(() => {
@@ -261,17 +322,24 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
       if (entries[0].isIntersecting && !statsAnimated.current) {
         statsAnimated.current = true
         const targets = LIVE_STATS.map(s => s.value)
-        const steps = targets.map(t => Math.ceil(t / 25))
         const current = [0, 0, 0, 0]
-        const iv = setInterval(() => {
-          let done = true
+        const duration = 1500
+        const startTime = performance.now()
+        let rafId: number
+        const animate = (now: number) => {
+          const elapsed = now - startTime
+          const progress = Math.min(elapsed / duration, 1)
+          const eased = 1 - Math.pow(1 - progress, 3)
           for (let i = 0; i < targets.length; i++) {
-            current[i] = Math.min(current[i] + steps[i], targets[i])
-            if (current[i] < targets[i]) done = false
+            current[i] = Math.round(eased * targets[i])
           }
           setAnimatedStats([...current])
-          if (done) clearInterval(iv)
-        }, 50)
+          if (progress < 1) {
+            rafId = requestAnimationFrame(animate)
+          }
+        }
+        rafId = requestAnimationFrame(animate)
+        return () => cancelAnimationFrame(rafId)
       }
     }, { threshold: 0.3 })
     obs.observe(statsEl)
@@ -290,6 +358,59 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    const footer = document.querySelector('footer')
+    if (!footer) return
+    const obs = new IntersectionObserver(([entry]) => {
+      setStickyVisible(!entry.isIntersecting)
+    }, { threshold: 0 })
+    obs.observe(footer)
+    return () => obs.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const updateAvailability = () => {
+      const now = new Date()
+      const istOffset = 5.5 * 60 * 60 * 1000
+      const ist = new Date(now.getTime() + istOffset + now.getTimezoneOffset() * 60 * 1000)
+      const hour = ist.getHours()
+      const day = ist.getDay()
+      const isWeekday = day >= 1 && day <= 6
+      if (!isWeekday) { setAvailabilityDot('red'); setAvailabilityText('Clinic closed — Book for Monday'); return }
+      if (hour >= 9 && hour < 19) { setAvailabilityDot('green'); setAvailabilityText(`${2 + Math.floor(Math.random() * 4)} doctors available now`); return }
+      if (hour >= 19 && hour < 21) { setAvailabilityDot('yellow'); setAvailabilityText('Next slot available in approx 30 min'); return }
+      setAvailabilityDot('red'); setAvailabilityText('Clinic closed — Book for tomorrow')
+    }
+    updateAvailability()
+    const iv = setInterval(updateAvailability, 60000)
+    return () => clearInterval(iv)
+  }, [])
+
+  const socialMessages = [
+    'Someone in Gurugram just booked a PCOS consultation',
+    '3 women booked fertility consultations today',
+    'Dr. Priya Sharma has 2 slots left this week',
+    '12 consultations booked in the last hour',
+    'Someone in Noida just started their pregnancy care plan',
+  ]
+  const socialToastRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const toastCountRef = useRef(0)
+
+  useEffect(() => {
+    const showToast = () => {
+      if (toastCountRef.current >= 5) return
+      const msg = socialMessages[Math.floor(Math.random() * socialMessages.length)]
+      setSocialToast({ show: true, message: msg, id: Date.now() })
+      toastCountRef.current++
+      socialToastRef.current = setTimeout(() => setSocialToast(prev => ({ ...prev, show: false })), 4000)
+    }
+    const initialTimer = setTimeout(showToast, 5000)
+    const iv = setInterval(() => {
+      if (toastCountRef.current < 5) showToast()
+    }, 10000 + Math.random() * 4000)
+    return () => { clearTimeout(initialTimer); clearInterval(iv); if (socialToastRef.current) clearTimeout(socialToastRef.current) }
   }, [])
 
   useEffect(() => {
@@ -430,21 +551,71 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
   return (
     <>
       <BookingModal open={bookingOpen} onOpenChange={setBookingOpen} preSelectedCondition={preSelectedCondition} />
+      <SymptomCheckerWidget open={symptomCheckOpen} onOpenChange={setSymptomCheckOpen} onBook={(c) => { setPreSelectedCondition(c); setBookingOpen(true) }} />
+
+      {/* Triage Wizard */}
+      <Dialog open={triageOpen} onOpenChange={(v) => { setTriageOpen(v); if (!v) { setTriageStep(0); setTriageAnswers([]) } }}>
+        <DialogContent className="sm:max-w-sm" style={{ padding: '28px 24px' }}>
+          {triageStep < 3 ? (
+            <>
+              <DialogTitle style={{ fontSize: '1.05rem', color: '#111827' }}>{TRIAGE_STEPS[triageStep].question}</DialogTitle>
+              <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {TRIAGE_STEPS[triageStep].options.map(opt => (
+                  <button key={opt} onClick={() => { setTriageAnswers(prev => [...prev, opt]); setTriageStep(prev => prev + 1) }}
+                    style={{ padding: '12px 16px', borderRadius: 10, fontSize: '0.88rem', fontWeight: 500, textAlign: 'left', border: '1.5px solid #E5E7EB', background: 'white', color: '#374151', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s ease' }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = '#BB2026')}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E7EB')}>
+                    {opt}
+                  </button>
+                ))}
+              </div>
+              <p style={{ marginTop: 16, fontSize: '0.8rem', color: '#9CA3AF', textAlign: 'center' }}>Step {triageStep + 1} of 3</p>
+            </>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '16px 0' }}>
+              <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                <HeartPulse size={28} color="#BB2026" />
+              </div>
+              <DialogTitle style={{ fontSize: '1.1rem', color: '#111827' }}>We recommend</DialogTitle>
+              <div style={{ marginTop: 12, padding: '12px 20px', background: '#FEF2F2', borderRadius: 10, fontSize: '1.05rem', fontWeight: 700, color: '#BB2026', display: 'inline-block' }}>
+                {TRIAGE_RESULTS[triageAnswers[0]] || 'General Consultation'}
+              </div>
+              <p style={{ marginTop: 12, color: '#6B7280', fontSize: '0.85rem', lineHeight: 1.5 }}>
+                Based on your answers, this care plan may be the best fit. Our specialists can help you get started.
+              </p>
+              <div style={{ marginTop: 20, display: 'flex', gap: 8, justifyContent: 'center' }}>
+                <button onClick={() => { const plan = TRIAGE_RESULTS[triageAnswers[0]] || 'General'; openBooking(plan); setTriageOpen(false) }}
+                  className="lp-cta-primary" style={{ padding: '12px 24px', fontSize: '0.9rem', borderRadius: 10 }}>
+                  Book Now
+                </button>
+                <button onClick={() => { setTriageStep(0); setTriageAnswers([]) }}
+                  style={{ padding: '12px 20px', background: 'white', color: '#6B7280', border: '1px solid #D1D5DB', borderRadius: 10, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  Start Over
+                </button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={exitOpen} onOpenChange={setExitOpen}>
         <DialogContent className="sm:max-w-sm" style={{ textAlign: 'center', padding: '32px 24px' }}>
-          <Heart size={48} color="#BB2026" style={{ margin: '0 auto 12px' }} />
-          <DialogTitle style={{ fontSize: '1.3rem', color: '#111827' }}>Wait — don&apos;t leave without answers</DialogTitle>
-          <p style={{ color: '#6B7280', fontSize: '0.9rem', marginTop: 8, lineHeight: 1.6 }}>
-            Book a free 10-minute screening call with our specialists. Available today.
+          <Image src="/images/newmi/newmi-logo.svg" alt="Newmi Care logo" width={80} height={22} style={{ margin: '0 auto 12px', height: 22, width: 'auto' }} />
+          <DialogTitle style={{ fontSize: '1.2rem', color: '#111827' }}>Wait! Don&apos;t leave without your free consultation</DialogTitle>
+          <p style={{ color: '#6B7280', fontSize: '0.88rem', marginTop: 8, lineHeight: 1.5 }}>
+            Book a free consultation with a women&apos;s health specialist. Limited slots available.
           </p>
+          <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid #D1D5DB', borderRadius: 10, padding: '2px 12px', marginTop: 16 }}>
+            <span style={{ fontSize: '0.88rem', color: '#6B7280', fontWeight: 500 }}>+91</span>
+            <input type="tel" placeholder="Enter your phone number" style={{ flex: 1, border: 'none', outline: 'none', padding: '10px 8px', fontSize: '0.88rem', fontFamily: 'inherit' }} />
+          </div>
           <button onClick={() => { setExitOpen(false); openBooking() }}
-            style={{ marginTop: 20, width: '100%', padding: '14px 0', background: '#BB2026', color: 'white', borderRadius: 10, fontSize: '1rem', fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
-            Claim My Free Call
+            style={{ marginTop: 14, width: '100%', padding: '14px 0', background: '#BB2026', color: 'white', borderRadius: 10, fontSize: '1rem', fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+            Book Free Consultation
           </button>
           <button onClick={() => setExitOpen(false)}
             style={{ marginTop: 10, background: 'none', border: 'none', color: '#9CA3AF', fontSize: '0.82rem', cursor: 'pointer', fontFamily: 'inherit' }}>
-            I&apos;ll come back later
+            No thanks
           </button>
         </DialogContent>
       </Dialog>
@@ -453,9 +624,14 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
         {selectedCarePlan && (
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>{carePlanDetail}</DialogTitle>
+              <DialogTitle>{carePlanDetail} Care Plan</DialogTitle>
+              <p style={{ fontSize: '0.85rem', color: '#6B7280', marginTop: 4, lineHeight: 1.5 }}>{selectedCarePlan.description}</p>
             </DialogHeader>
             <div>
+              <p style={{ fontSize: '0.9rem', fontWeight: 600, color: '#BB2026', marginBottom: 6 }}>What&apos;s Included</p>
+              <ul style={{ fontSize: '0.85rem', color: '#374151', paddingLeft: 16, marginBottom: 14, lineHeight: 1.9 }}>
+                {selectedCarePlan.includes.map(s => <li key={s}>{s}</li>)}
+              </ul>
               <p style={{ fontSize: '0.9rem', fontWeight: 600, color: '#BB2026', marginBottom: 6 }}>Common symptoms we treat:</p>
               <ul style={{ fontSize: '0.85rem', color: '#374151', paddingLeft: 16, marginBottom: 14, lineHeight: 1.8 }}>
                 {selectedCarePlan.symptoms.map(s => <li key={s}>{s}</li>)}
@@ -466,7 +642,7 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
                 const doc = SPECIALISTS[selectedCarePlan.docIdx]
                 return doc ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 10, background: '#F9FAFB', borderRadius: 10, marginBottom: 14 }}>
-                    <Image src={DOCTOR_PORTRAITS[selectedCarePlan.docIdx]} alt={`Dr. ${doc.name} — ${doc.title} at Newmi Care`} width={48} height={48} className="rounded-full ring-2 ring-white shadow-md" style={{ objectFit: 'cover', borderRadius: '50%' }} />
+                    <Image src={DOCTOR_PORTRAITS[selectedCarePlan.docIdx]} alt={`${doc.name} — ${doc.title} at Newmi Care`} width={48} height={48} className="rounded-full ring-2 ring-white shadow-md" style={{ objectFit: 'cover', borderRadius: '50%' }} />
                     <div>
                       <p style={{ fontWeight: 600, color: '#111827', fontSize: '0.85rem' }}>{doc.name}</p>
                       <p style={{ color: '#6B7280', fontSize: '0.78rem' }}>{doc.title} &middot; {doc.experience}</p>
@@ -531,6 +707,12 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
               <button className="lp-cta-secondary" onClick={() => scrollTo('conditions')} style={{ padding: '14px 28px', fontSize: '1rem', borderRadius: 12 }}>
                 Explore Our Care
               </button>
+              <button className="lp-cta-secondary" onClick={() => setTriageOpen(true)} style={{ padding: '14px 28px', fontSize: '1rem', borderRadius: 12 }}>
+                <Sparkles size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} /> Find Your Care
+              </button>
+              <button className="lp-cta-secondary" onClick={() => setSymptomCheckOpen(true)} style={{ padding: '14px 28px', fontSize: '1rem', borderRadius: 12 }}>
+                <Search size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} /> Check Symptoms
+              </button>
             </div>
             <div style={{ marginTop: 20, color: '#6B7280', fontSize: '0.9rem' }}>
               <span ref={countRef} style={{ fontWeight: 700, color: '#BB2026', fontSize: '1.1rem' }}>{liveCount}</span> women consulted today
@@ -547,8 +729,22 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
                 <span style={{ display: 'block', color: '#6B7280', fontSize: '0.75rem', marginTop: 2 }}>— Priya M., Gurugram</span>
               </div>
             </div>
+            <div style={{ marginTop: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontSize: '0.82rem', color: '#6B7280' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', display: 'inline-block', background: availabilityDot === 'green' ? '#22C55E' : availabilityDot === 'yellow' ? '#EAB308' : '#EF4444', boxShadow: availabilityDot === 'green' ? '0 0 8px rgba(34,197,94,0.5)' : 'none' }} />
+                {availabilityText}
+              </span>
+            </div>
           </div>
         </section>
+
+        {/* Social Proof Toast */}
+        {socialToast.show && (
+          <div key={socialToast.id} style={{ position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: '#1F2937', color: 'white', padding: '12px 24px', borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.2)', fontSize: '0.85rem', whiteSpace: 'nowrap', maxWidth: '90vw', overflow: 'hidden', textOverflow: 'ellipsis', animation: 'fadeInUp 0.4s ease-out' }}>
+            <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: '#22C55E', marginRight: 10, verticalAlign: 'middle' }} />
+            {socialToast.message}
+          </div>
+        )}
 
         <section className="lp-section" id="conditions" aria-labelledby="conditions-title" style={{ background: '#F9FAFB' }}>
           <div className="lp-container">
@@ -579,7 +775,7 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
                         <p style={{ fontSize: '0.8rem', color: '#374151', marginBottom: 12 }}>{p.expectation}</p>
                         {doc && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8rem', color: '#6B7280', marginBottom: 12, padding: 8, background: '#F9FAFB', borderRadius: 8 }}>
-                            <Image src={DOCTOR_PORTRAITS[p.docIdx]} alt={`Dr. ${doc.name} — ${doc.title} at Newmi Care`} width={32} height={32} className="rounded-full ring-2 ring-white shadow-sm" style={{ objectFit: 'cover', borderRadius: '50%' }} />
+                            <Image src={DOCTOR_PORTRAITS[p.docIdx]} alt={`${doc.name} — ${doc.title} at Newmi Care`} width={32} height={32} className="rounded-full ring-2 ring-white shadow-sm" style={{ objectFit: 'cover', borderRadius: '50%' }} />
                             <div>
                               <span style={{ fontWeight: 600 }}>{doc.name}</span> — {doc.experience}
                             </div>
@@ -688,7 +884,7 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                     <Image
                       src={DOCTOR_PORTRAITS[idx]}
-                      alt={`Dr. ${doc.name} — ${doc.title} at Newmi Care`}
+                      alt={`${doc.name} — ${doc.title} at Newmi Care`}
                       width={80} height={80}
                       className="ring-2 ring-white shadow-md"
                       style={{ objectFit: 'cover', borderRadius: '50%', width: 80, height: 80 }}
@@ -733,7 +929,7 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
               {LIVE_STATS.map((stat, i) => (
                 <div key={stat.label} style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', borderRadius: 16, padding: '28px 16px', border: '1px solid rgba(255,255,255,0.1)' }}>
                   <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'white' }}>
-                    {animatedStats[i] || 0}
+                    {stat.format(animatedStats[i] || 0)}
                     <span style={{ fontSize: '1rem', fontWeight: 400, opacity: 0.7 }}>{stat.suffix}</span>
                   </div>
                   <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', marginTop: 4 }}>{stat.label}</div>
@@ -820,12 +1016,12 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
                       <h3 style={{ marginTop: 10, fontWeight: 600, color: '#111827', fontSize: '0.9rem' }}>{item.title}</h3>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <button style={{ marginTop: 6, background: 'none', border: 'none', color: '#BB2026', fontSize: '0.78rem', fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
-                            Login to access
+                          <button onClick={() => scrollTo('app')} style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 9999, border: '1px solid #E5E7EB', background: '#F9FAFB', color: '#6B7280', fontSize: '0.75rem', fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', transition: 'background 0.15s' }}>
+                            <Lock size={12} /> Login to access
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent style={{ maxWidth: 260, fontSize: '0.82rem', lineHeight: 1.5 }}>
-                          This feature is available for registered patients. Download the Newmi Care app to get started.
+                        <TooltipContent style={{ maxWidth: 280, fontSize: '0.82rem', lineHeight: 1.5 }}>
+                          Download the Newmi app to access this feature.
                         </TooltipContent>
                       </Tooltip>
                     </article>
@@ -899,6 +1095,28 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
           </div>
         </section>
 
+        <section className="lp-section" id="founders" aria-labelledby="founders-title" style={{ background: '#F9FAFB' }}>
+          <div className="lp-container" style={{ textAlign: 'center' }}>
+            <h2 id="founders-title" className="lp-title">Built by Those Who Understand</h2>
+            <p className="lp-subtitle" style={{ marginBottom: 32 }}>Our founders turned personal health battles into a mission for every woman.</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
+              {FOUNDERS.map((f) => (
+                  <article key={f.name} className="lp-card" style={{ padding: 28, textAlign: 'center', border: '1px solid #E5E7EB' }}>
+                    <Image src={f.image} alt={f.name} width={72} height={72} style={{ borderRadius: '50%', objectFit: 'cover', margin: '0 auto 16px' }} />
+                    <h3 style={{ fontWeight: 700, color: '#111827', fontSize: '1rem' }}>{f.name}</h3>
+                    <p style={{ color: '#BB2026', fontSize: '0.82rem', fontWeight: 600, marginTop: 2 }}>{f.title}</p>
+                    <div style={{ marginTop: 12, padding: '8px 12px', background: '#FEF2F2', borderRadius: 8, fontSize: '0.85rem', color: '#BB2026', fontWeight: 500, lineHeight: 1.4 }}>{f.story}</div>
+                    <p style={{ color: '#6B7280', fontSize: '0.8rem', marginTop: 12, lineHeight: 1.5 }}>{f.credential}</p>
+                  </article>
+              ))}
+            </div>
+            <div style={{ marginTop: 28, borderTop: '1px solid #E5E7EB', paddingTop: 20 }}>
+              <p style={{ color: '#6B7280', fontSize: '0.85rem', fontStyle: 'italic' }}>&ldquo;Every woman deserves complete, compassionate care.&rdquo;</p>
+              <p style={{ color: '#9CA3AF', fontSize: '0.78rem', marginTop: 4 }}>&mdash; The Newmi Team</p>
+            </div>
+          </div>
+        </section>
+
         <section className="lp-section" id="faq" aria-labelledby="faq-title">
           <div className="lp-container" style={{ maxWidth: 800 }}>
             <h2 id="faq-title" className="lp-title">Frequently Asked Questions</h2>
@@ -929,13 +1147,40 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
             </div>
           </div>
         </section>
+
+        {/* Smart Newsletter Section (B8) */}
+        <section className="lp-section" id="newsletter" aria-labelledby="nl-title" style={{ background: 'linear-gradient(135deg, #BB2026, #9c151c)' }}>
+          <div className="lp-container" style={{ textAlign: 'center', color: 'white' }}>
+            <h2 id="nl-title" style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 8 }}>Stay Informed</h2>
+            <p style={{ fontSize: '0.9rem', opacity: 0.9, maxWidth: 500, margin: '0 auto 24px' }}>Get weekly tips, expert articles, and updates on women&apos;s health straight to your inbox.</p>
+            {subscribed ? (
+              <div style={{ padding: '16px 24px', background: 'rgba(255,255,255,0.15)', borderRadius: 12, display: 'inline-block' }}>
+                <span style={{ fontSize: '1.1rem' }}>✅ You&apos;re subscribed! Check your inbox for our welcome email.</span>
+              </div>
+            ) : (
+              <form onSubmit={subscribe} style={{ display: 'flex', gap: 8, maxWidth: 440, margin: '0 auto', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <div>
+                  <input type="email" placeholder="Enter your email" value={email} onChange={e => { setEmail(e.target.value); setEmailError('') }}
+                    style={{ padding: '12px 16px', borderRadius: 10, border: emailError ? '2px solid #FCA5A5' : '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.95)', width: 260, fontSize: '0.9rem', color: '#111827', fontFamily: 'inherit' }} />
+                  {emailError && <p style={{ color: '#FECACA', fontSize: '0.75rem', marginTop: 4, textAlign: 'left' }}>{emailError}</p>}
+                </div>
+                <button type="submit" disabled={subscribing} style={{ padding: '12px 24px', background: 'white', color: '#BB2026', fontWeight: 700, borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontFamily: 'inherit', opacity: subscribing ? 0.7 : 1 }}>
+                  {subscribing ? 'Subscribing...' : 'Subscribe'}
+                </button>
+              </form>
+            )}
+          </div>
+        </section>
       </main>
 
-      <div style={{ display: showSticky ? 'flex' : 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: '#BB2026', padding: '8px 16px', zIndex: 100, boxShadow: '0 -4px 20px rgba(0,0,0,0.15)', alignItems: 'center', justifyContent: 'center', height: 56 }}
-        className="lp-sticky-mobile">
+      <div style={{ display: showSticky && !bookingOpen && stickyVisible ? 'flex' : 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: '#BB2026', padding: '8px 16px', zIndex: 40, boxShadow: '0 -4px 20px rgba(0,0,0,0.15)', alignItems: 'center', justifyContent: 'center', height: 56, gap: 8 }}
+        className="lp-sticky-mobile md:hidden">
         <button onClick={() => openBooking()} style={{ background: 'white', color: '#BB2026', padding: '10px 24px', fontWeight: 700, fontSize: '0.95rem', borderRadius: 10, border: 'none', cursor: 'pointer', flex: 1, maxWidth: 400, fontFamily: 'inherit' }}>
           {stickyCtaLabel}
         </button>
+        <a href="tel:+918929345535" style={{ color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, flexShrink: 0 }}>
+          <Phone size={20} />
+        </a>
       </div>
 
       <button onClick={() => openWhatsApp()} aria-label="Chat on WhatsApp"

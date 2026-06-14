@@ -3803,3 +3803,5 @@ html { scroll-behavior: smooth; }
 .lp-gen-copy:hover { background: #F3F4F6; }
 
 .auto-card-special { border: 1.5px dashed #BB2026 !important; background: linear-gradient(135deg, #FFF5F5 0%, white 100%) !important; }
+
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px) translateX(-50%); } to { opacity: 1; transform: translateY(0) translateX(-50%); } }

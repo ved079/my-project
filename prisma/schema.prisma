@@ -111,7 +111,13 @@ model NiviMessage {
   confidence     String?
   intent         String?
   sentiment      String?
-  createdAt      DateTime        @default(now())
+  createdAt      DateTime    @default(now())
+}
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
 }
 
 model ActivityLog {

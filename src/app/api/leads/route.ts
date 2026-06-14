@@ -30,6 +30,39 @@ export async function GET(request: Request) {
   return NextResponse.json(leads)
 }
 
+export async function POST(request: Request) {
+  try {
+    const body = await request.json()
+    const { name, phone, email, service, source, location, inquiryTime, slaDeadline, utmSource, utmMedium, utmCampaign } = body
+    if (!phone) return NextResponse.json({ error: 'Phone is required' }, { status: 400 })
+
+    const clients = await db.client.findMany({ take: 1 })
+    const clientId = clients.length > 0 ? clients[0].id : 'default'
+
+    const lead = await db.lead.create({
+      data: {
+        name: name || 'Unknown',
+        phone,
+        phoneMasked: phone.slice(-4).padStart(phone.length, '*'),
+        email: email || '',
+        service: service || 'General',
+        source: source || 'website',
+        location: location || '',
+        clientId,
+        inquiryTime: inquiryTime ? new Date(inquiryTime) : new Date(),
+        slaDeadline: slaDeadline ? new Date(slaDeadline) : new Date(Date.now() + 30 * 60 * 1000),
+        utmSource: utmSource || '',
+        utmMedium: utmMedium || '',
+        utmCampaign: utmCampaign || '',
+      },
+    })
+    return NextResponse.json(lead, { status: 201 })
+  } catch (e) {
+    console.error('POST /api/leads error:', e)
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+  }
+}
+
 export async function PATCH(request: Request) {
   const body = await request.json()
   const { id, status, flaggedAs, teamMemberId } = body
