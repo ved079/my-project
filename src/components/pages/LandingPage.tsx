@@ -112,8 +112,9 @@ const SERVICES_LINKS = ['PCOS/PCOD', 'Fertility', 'Pregnancy', 'Menopause', 'Men
 
 export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => void }) {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [carouselIdx, setCarouselIdx] = useState(2)
+  const [carouselIdx, setCarouselIdx] = useState(12)
   const [carouselPaused, setCarouselPaused] = useState(false)
+  const [noTrans, setNoTrans] = useState(false)
   const carouselRef = useRef<HTMLDivElement>(null)
   const [carouselW, setCarouselW] = useState(0)
 
@@ -128,19 +129,31 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
 
   const N = CARE_PLANS_ITEMS.length
   const ITEM_W = 240, GAP = 16
+  const MAX_IDX = 3 * N - 2
 
   const stripX = carouselW > 0 ? carouselW / 2 - carouselIdx * (ITEM_W + GAP) - ITEM_W / 2 : 0
 
+  const goTo = useCallback((idx: number) => {
+    if (idx >= MAX_IDX) {
+      setNoTrans(true)
+      setCarouselIdx(idx - 2 * N)
+      requestAnimationFrame(() => setNoTrans(false))
+    } else if (idx < 1) {
+      setNoTrans(true)
+      setCarouselIdx(idx + 2 * N)
+      requestAnimationFrame(() => setNoTrans(false))
+    } else {
+      setCarouselIdx(idx)
+    }
+  }, [])
+
   useEffect(() => {
     if (carouselPaused || N <= 1) return
-    const t = setInterval(() => setCarouselIdx(p => (p + 1) % N), 4000)
+    const t = setInterval(() => goTo(carouselIdx + 1), 4000)
     return () => clearInterval(t)
-  }, [carouselPaused, N])
+  }, [carouselPaused, N, carouselIdx, goTo])
 
-  const circDist = useCallback((a: number, b: number) => {
-    const d = Math.abs(a - b)
-    return Math.min(d, N - d)
-  }, [N])
+  const TRIPLED = useMemo(() => [...CARE_PLANS_ITEMS, ...CARE_PLANS_ITEMS, ...CARE_PLANS_ITEMS], [])
 
   useEffect(() => {
     document.title = 'PCOS Treatment, Fertility & Women\'s Health Clinic in Gurugram | Newmi Care'
@@ -317,19 +330,20 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
             <div className="lp-carousel"
               onMouseEnter={() => setCarouselPaused(true)}
               onMouseLeave={() => setCarouselPaused(false)}>
-              <div className="lp-carousel-strip" style={{ transform: `translateX(${stripX}px)` }} ref={carouselRef}>
-                {CARE_PLANS_ITEMS.map((item, i) => {
+              <div className="lp-carousel-strip" style={{ transform: `translateX(${stripX}px)`, transition: noTrans ? 'none' : undefined }} ref={carouselRef}>
+                {TRIPLED.map((item, i) => {
                   const Icon = item.icon
-                  const d = circDist(i, carouselIdx)
+                  const d = Math.abs(i - carouselIdx)
                   const s = d === 0 ? 1.15 : d === 1 ? 0.85 : 0.7
                   const o = d === 0 ? 1 : d === 1 ? 0.85 : 0
                   const p = d <= 1 ? 'auto' : 'none'
                   const isCenter = d === 0
+                  const origIdx = i % N
                   return (
-                    <article key={item.title} className="lp-carousel-card"
+                    <article key={`${item.title}-${i}`} className="lp-carousel-card"
                       data-center={isCenter || undefined}
                       style={{ transform: `scale(${s})`, opacity: o, zIndex: N - d, pointerEvents: p, cursor: d === 1 ? 'pointer' : 'default' }}
-                      onClick={() => d === 1 && setCarouselIdx(i)}>
+                      onClick={() => d === 1 && goTo(i)}>
                       {item.popular && isCenter && (
                         <span className="lp-carousel-badge">Most Popular</span>
                       )}

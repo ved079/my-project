@@ -73,7 +73,10 @@ function RiyaDashboard({ activeTab, onTabChange }: { activeTab: RiyaTab; onTabCh
 
 export default function NewmiMarketingOS() {
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    if (typeof window !== 'undefined') return (localStorage.getItem('newmi-view') as ViewMode) || 'admin'
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('newmi-view') as ViewMode | null
+      if (stored === 'admin' || stored === 'riya') return stored
+    }
     return 'admin'
   })
   const [activePage, setActivePage] = useState<Page>('overview')
@@ -83,6 +86,8 @@ export default function NewmiMarketingOS() {
     return false
   })
   const [riyaTab, setRiyaTab] = useState<RiyaTab>('command')
+  const navToPage = useCallback((p: Page) => { window.scrollTo(0, 0); setActivePage(p) }, [])
+  const navToTab = useCallback((t: RiyaTab) => { window.scrollTo(0, 0); setRiyaTab(t) }, [])
   const [cmdOpen, setCmdOpen] = useState(false)
   const toasts = useToastStore(s => s.toasts)
 
@@ -141,13 +146,13 @@ export default function NewmiMarketingOS() {
         <>
           <ToastContainer toasts={toasts} />
           {viewMode === 'admin' && (
-            <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} onNavigate={p => { setActivePage(p); setCmdOpen(false) }} onLeadSelect={lead => { setActivePage('leads'); setCmdOpen(false) }} />
+            <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} onNavigate={p => { navToPage(p); setCmdOpen(false) }} onLeadSelect={lead => { navToPage('leads'); setCmdOpen(false) }} />
           )}
           <div className="dash-shell">
             {viewMode === 'admin' ? (
-              <Sidebar active={activePage} onNavigate={setActivePage} />
+              <Sidebar active={activePage} onNavigate={navToPage} />
             ) : (
-              <RiyaSidebar activeTab={riyaTab} onTabChange={setRiyaTab} />
+              <RiyaSidebar activeTab={riyaTab} onTabChange={navToTab} />
             )}
             <div className="dash-main">
               {viewMode === 'admin' ? (
@@ -156,7 +161,7 @@ export default function NewmiMarketingOS() {
                 <RiyaTopbar activeTab={riyaTab} viewMode={viewMode} onViewChange={setViewMode} />
               )}
               <main className="dash-content" style={{ paddingBottom: viewMode === 'riya' ? '72px' : undefined }}>
-                {viewMode === 'admin' ? renderPage() : <RiyaDashboard activeTab={riyaTab} onTabChange={setRiyaTab} />}
+                {viewMode === 'admin' ? renderPage() : <RiyaDashboard activeTab={riyaTab} onTabChange={navToTab} />}
               </main>
             </div>
           </div>
