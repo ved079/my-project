@@ -104,9 +104,18 @@ export function BookingModal({
             <p style={{ color: '#6B7280', fontSize: '0.9rem', marginTop: 8, lineHeight: 1.5 }}>
               Our team will contact you within 10 minutes.
             </p>
-            <div style={{ marginTop: 20, padding: '12px 16px', background: '#F9FAFB', borderRadius: 10, display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: '0.9rem', color: '#111827' }}>
-              <Phone size={16} color="#BB2026" />
-              <a href="tel:+918929345355" style={{ color: '#111827', textDecoration: 'none', fontWeight: 600 }}>+91-8929345355</a>
+            <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
+              <div style={{ padding: '12px 16px', background: '#F9FAFB', borderRadius: 10, display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: '0.9rem', color: '#111827' }}>
+                <Phone size={16} color="#BB2026" />
+                <a href="tel:+918929345355" style={{ color: '#111827', textDecoration: 'none', fontWeight: 600 }}>+91-8929345355</a>
+              </div>
+              <a
+                href={`https://wa.me/918929345355?text=${encodeURIComponent(`Hi Newmi Care! I just booked a consultation for ${condition || 'a health concern'}.`)}`}
+                target="_blank" rel="noopener noreferrer"
+                style={{ padding: '10px 20px', background: '#25D366', color: 'white', borderRadius: 10, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: '0.9rem', fontWeight: 600, fontFamily: 'inherit' }}
+              >
+                <MessageCircle size={16} /> Chat on WhatsApp
+              </a>
             </div>
             <button
               onClick={() => handleOpenChange(false)}

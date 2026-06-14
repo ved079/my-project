@@ -7,7 +7,7 @@ import {
   MapPin, Video, Building2, Dumbbell, Brain, Flower2, Baby, HeartPulse,
   HandHeart, Moon, Ribbon, Stethoscope, Menu, X, Phone, Mail, MessageCircle,
   Quote, Activity, BookOpen, ClipboardCheck, FileText, Pill, TestTube,
-  Calendar, Instagram, Facebook, Linkedin, Twitter, MessageSquare, Lock, Search, Sparkles,
+  Calendar,   Instagram, Facebook, Linkedin, Twitter, MessageSquare, Lock, Search, Sparkles, Clock, ChevronLeft, ChevronRight,
 } from 'lucide-react'
 import { captureUTM, persistUTM } from '@/lib/utm'
 import type { ViewMode } from '@/lib/types'
@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/accordion'
 import { BookingModal } from '@/components/BookingModal'
 import { SymptomCheckerWidget } from '@/components/SymptomCheckerWidget'
+import { HealthScoreQuiz } from '@/components/HealthScoreQuiz'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger,
 } from '@/components/ui/dialog'
@@ -140,13 +141,13 @@ const CONDITION_PATHWAYS = [
 const LIVE_STATS = [
   { label: 'Women Served', value: 50000, suffix: '+', format: (v: number) => v >= 1000 ? Math.round(v / 1000) + 'K' : String(v) },
   { label: 'Cities Covered', value: 25, suffix: '+', format: (v: number) => String(v) },
-  { label: 'Patient Satisfaction', value: 5, suffix: '', format: (v: number) => v < 1 ? '0' : v < 5 ? String(Math.max(v, 1)) : '4.9' },
+  { label: 'App Rating', value: 5, suffix: '', format: (v: number) => v < 1 ? '0' : v < 5 ? String(Math.max(v, 1)) : '4.9+' },
   { label: 'Safe & Secure', value: 100, suffix: '%', format: (v: number) => String(v) },
 ]
 
 const TRUST_BADGES = [
   { label: 'HIPAA Compliant', img: '/images/newmi/hipaa-logo.jpg' },
-  { label: '4.8 on Practo', img: '/images/newmi/practo-logo.jpeg' },
+  { label: '4.9+ App Rating', img: '/images/newmi/practo-logo.jpeg' },
   { label: 'ISO Certified', img: '/images/newmi/iso-logo.png' },
   { label: '10,000+ Consults', icon: Heart, img: null },
   { label: '5 Specialists', icon: Stethoscope, img: null },
@@ -251,6 +252,41 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
   const [socialToast, setSocialToast] = useState({ show: false, message: '', id: 0 })
   const [triageOpen, setTriageOpen] = useState(false)
   const [symptomCheckOpen, setSymptomCheckOpen] = useState(false)
+  const [quizOpen, setQuizOpen] = useState(false)
+  const [heroTagline, setHeroTagline] = useState("India's Most Trusted Women's Health Platform")
+  const [heroHeading, setHeroHeading] = useState('You deserve answers,\nnot guesswork.')
+  const [heroSubtext, setHeroSubtext] = useState("India's most trusted women's health platform — from puberty to menopause, we're with you at every stage.")
+  const [tickerMessages] = useState([
+    'Priya from Gurugram just booked a fertility consult',
+    'Anjali from Noida started her pregnancy care plan',
+    'Sneha from Pune scheduled a menopause consultation',
+    'Riya from Delhi booked a PCOS care plan',
+    'Meera from Mumbai started her weight management plan',
+  ])
+  const [tickerIdx, setTickerIdx] = useState(0)
+
+  useEffect(() => {
+    const utm = captureUTM()
+    if (utm.utmCampaign?.includes('fertility')) {
+      setHeroTagline('Starting a Family? We Can Help.')
+      setHeroHeading('Your fertility journey\nstarts here.')
+      setHeroSubtext('Specialized fertility care with India\'s top reproductive specialists. Book a consultation today.')
+    } else if (utm.utmSource === 'instagram') {
+      setHeroTagline('Welcome from Instagram')
+      setHeroHeading('You deserve answers,\nnot guesswork.')
+      setHeroSubtext('Exclusive offer for our Instagram community — get 10% off your first consultation.')
+    } else if (utm.utmSource === 'google') {
+      setHeroTagline('You searched for answers. We have them.')
+      setHeroHeading('Expert care for\nevery concern.')
+      setHeroSubtext("India's most trusted women's health platform — book a consultation in under 2 minutes.")
+    }
+  }, [])
+
+  useEffect(() => {
+    const iv = setInterval(() => setTickerIdx(p => (p + 1) % tickerMessages.length), 5000)
+    return () => clearInterval(iv)
+  }, [tickerMessages.length])
+
   const [triageStep, setTriageStep] = useState(0)
   const [triageAnswers, setTriageAnswers] = useState<string[]>([])
   const countRef = useRef<HTMLSpanElement>(null)
@@ -285,7 +321,25 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
   }, [carouselPaused, N])
 
   useEffect(() => {
-    persistUTM(captureUTM())
+    const utm = captureUTM()
+    persistUTM(utm)
+    const q = utm.utmContent || utm.utmTerm || ''
+    if (q.toLowerCase().includes('fertility') || q.toLowerCase().includes('ivf') || q.toLowerCase().includes('conceive')) {
+      setHeroTagline('Starting a family? We can help.')
+      setHeroHeading('Your fertility journey\nstarts here.')
+      setHeroSubtext('Expert fertility specialists, personalized treatment plans, and compassionate care — all in one place.')
+    } else if (q.toLowerCase().includes('pcos') || q.toLowerCase().includes('period') || q.toLowerCase().includes('pcod')) {
+      setHeroTagline('PCOS? You\'re not alone.')
+      setHeroHeading('Life with PCOS\ndoesn\'t have to be hard.')
+      setHeroSubtext('Get expert care, real answers, and a plan that works for your body.')
+    } else if (q.toLowerCase().includes('pregnan') || q.toLowerCase().includes('baby')) {
+      setHeroTagline('Expecting? We\'re with you.')
+      setHeroHeading('From bump to baby\nand beyond.')
+      setHeroSubtext('Complete prenatal care, expert guidance, and support through every trimester.')
+    }
+  }, [])
+
+  useEffect(() => {
     const t = setInterval(() => {
       setConcernFade(false)
       setTimeout(() => {
@@ -302,13 +356,15 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
       if (entries[0].isIntersecting && !counted.current) {
         counted.current = true
         const target = 47
-        let current = 0
-        const step = Math.ceil(target / 30)
-        const iv = setInterval(() => {
-          current += step
-          if (current >= target) { current = target; clearInterval(iv) }
-          setLiveCount(current)
-        }, 60)
+        const duration = 1200
+        const start = performance.now()
+        const raf = (now: number) => {
+          const p = Math.min((now - start) / duration, 1)
+          const eased = 1 - Math.pow(1 - p, 3)
+          setLiveCount(Math.round(eased * target))
+          if (p < 1) requestAnimationFrame(raf)
+        }
+        requestAnimationFrame(raf)
       }
     }, { threshold: 0.5 })
     obs.observe(countRef.current)
@@ -506,7 +562,7 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
           geo: { '@type': 'GeoCoordinates', latitude: 28.4595, longitude: 77.0266 },
           medicalSpecialty: ['Gynecology', 'Obstetrics', 'Fertility', 'Endocrinology', 'Oncology'],
           availableService: ['PCOS Treatment', 'IVF', 'Pregnancy Care', 'Menopause Treatment', 'Mental Health'],
-          aggregateRating: { '@type': 'AggregateRating', ratingValue: 4.8, reviewCount: 1200 },
+          aggregateRating: { '@type': 'AggregateRating', ratingValue: 4.9, reviewCount: 1200 },
         },
         {
           '@type': 'FAQPage',
@@ -552,6 +608,7 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
     <>
       <BookingModal open={bookingOpen} onOpenChange={setBookingOpen} preSelectedCondition={preSelectedCondition} />
       <SymptomCheckerWidget open={symptomCheckOpen} onOpenChange={setSymptomCheckOpen} onBook={(c) => { setPreSelectedCondition(c); setBookingOpen(true) }} />
+      <HealthScoreQuiz open={quizOpen} onOpenChange={setQuizOpen} onBook={() => openBooking()} />
 
       {/* Triage Wizard */}
       <Dialog open={triageOpen} onOpenChange={(v) => { setTriageOpen(v); if (!v) { setTriageStep(0); setTriageAnswers([]) } }}>
@@ -689,54 +746,71 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
         <section className="lp-hero" id="hero" aria-labelledby="hero-title">
           <div className="lp-container" style={{ paddingTop: 80, paddingBottom: 80, textAlign: 'center', position: 'relative' }}>
             <span style={{ background: '#FEF2F2', color: '#BB2026', border: '1px solid #FBCFE8', borderRadius: 9999, fontSize: '0.8rem', fontWeight: 600, padding: '4px 14px', display: 'inline-block', letterSpacing: '0.02em' }}>
-              India&apos;s Most Trusted Women&apos;s Health Platform
+              {heroTagline}
             </span>
-            <h1 id="hero-title" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 800, color: '#111827', lineHeight: 1.15, marginTop: 20, letterSpacing: '-0.02em' }}>You deserve answers,<br />not guesswork.</h1>
+            <h1 id="hero-title" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 800, color: '#111827', lineHeight: 1.15, marginTop: 20, letterSpacing: '-0.02em', whiteSpace: 'pre-line' }}>{heroHeading}</h1>
             <p style={{ fontSize: '1.125rem', color: '#6B7280', marginTop: 12, maxWidth: 520, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.6 }}>
-              India&apos;s most trusted women&apos;s health platform — from puberty to menopause, we&apos;re with you at every stage.
+              {heroSubtext}
             </p>
-            <div style={{ marginTop: 20, minHeight: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '1rem', color: '#6B7280', transition: 'opacity 0.4s ease', opacity: concernFade ? 1 : 0 }}>
-                <span style={{ color: '#BB2026', fontWeight: 600 }}>&ldquo;{CONCERNS[concernIdx]}&rdquo;</span>
-              </span>
-            </div>
-            <div style={{ marginTop: 28, display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button className="lp-cta-primary" onClick={() => openBooking()} style={{ padding: '14px 32px', fontSize: '1rem', borderRadius: 12 }}>
-                <MessageSquare size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} /> Talk to a Specialist Now
+
+            <div style={{ marginTop: 24, display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button onClick={() => openBooking()} style={{ padding: '10px 24px', background: '#BB2026', color: 'white', fontWeight: 600, fontSize: '0.85rem', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                <MessageSquare size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} /> Book Free Consultation
               </button>
-              <button className="lp-cta-secondary" onClick={() => scrollTo('conditions')} style={{ padding: '14px 28px', fontSize: '1rem', borderRadius: 12 }}>
-                Explore Our Care
-              </button>
-              <button className="lp-cta-secondary" onClick={() => setTriageOpen(true)} style={{ padding: '14px 28px', fontSize: '1rem', borderRadius: 12 }}>
-                <Sparkles size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} /> Find Your Care
-              </button>
-              <button className="lp-cta-secondary" onClick={() => setSymptomCheckOpen(true)} style={{ padding: '14px 28px', fontSize: '1rem', borderRadius: 12 }}>
-                <Search size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} /> Check Symptoms
+              <button onClick={() => setQuizOpen(true)} style={{ padding: '10px 20px', background: '#FFFFFF', color: '#374151', fontWeight: 500, fontSize: '0.85rem', borderRadius: 10, border: '1px solid #D1D5DB', cursor: 'pointer', fontFamily: 'inherit' }}>
+                <Activity size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} /> Check Your Health Score
               </button>
             </div>
-            <div style={{ marginTop: 20, color: '#6B7280', fontSize: '0.9rem' }}>
-              <span ref={countRef} style={{ fontWeight: 700, color: '#BB2026', fontSize: '1.1rem' }}>{liveCount}</span> women consulted today
-            </div>
-            <div style={{ marginTop: 24, display: 'flex', gap: 24, justifyContent: 'center', color: '#6B7280', fontSize: '0.85rem', flexWrap: 'wrap' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><CheckCircle size={16} color="#059669" /> 10,000+ Women Helped (since 2021)</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Shield size={16} color="#059669" /> HIPAA-Compliant Care</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Star size={16} color="#D97706" /> 4.8 Rating on Practo</span>
-            </div>
-            <div style={{ marginTop: 24, display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(8px)', borderRadius: 12, padding: '12px 20px', border: '1px solid #E5E7EB', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-              <div style={{ color: '#D97706', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>⭐⭐⭐⭐⭐</div>
-              <div style={{ fontSize: '0.82rem', color: '#374151', textAlign: 'left' }}>
-                <em>&ldquo;Newmi made me feel heard for the first time&rdquo;</em>
-                <span style={{ display: 'block', color: '#6B7280', fontSize: '0.75rem', marginTop: 2 }}>— Priya M., Gurugram</span>
+            <div style={{ marginTop: 28, padding: '14px 20px', background: '#F9FAFB', borderRadius: 14, border: '1px solid #F3F4F6', maxWidth: 520, marginLeft: 'auto', marginRight: 'auto' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, flexWrap: 'wrap', fontSize: '0.82rem', color: '#6B7280' }}>
+                <span ref={countRef} style={{ fontWeight: 700, color: '#BB2026' }}>{liveCount}</span> women consulted today
+                <span style={{ width: 1, height: 12, background: '#D1D5DB', margin: '0 8px' }} />
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: availabilityDot === 'green' ? '#22C55E' : availabilityDot === 'yellow' ? '#EAB308' : '#EF4444', display: 'inline-block' }} />
+                  {availabilityText}
+                </span>
               </div>
-            </div>
-            <div style={{ marginTop: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontSize: '0.82rem', color: '#6B7280' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', display: 'inline-block', background: availabilityDot === 'green' ? '#22C55E' : availabilityDot === 'yellow' ? '#EAB308' : '#EF4444', boxShadow: availabilityDot === 'green' ? '0 0 8px rgba(34,197,94,0.5)' : 'none' }} />
-                {availabilityText}
-              </span>
+              <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, flexWrap: 'wrap', fontSize: '0.78rem', color: '#9CA3AF' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>{[0,1,2,3,4].map(i => <Star key={i} size={11} fill="#D97706" color="#D97706" />)}<strong style={{ color: '#374151', marginLeft: 2 }}>4.9+</strong> App Rating</span>
+                <span style={{ width: 1, height: 10, background: '#D1D5DB', margin: '0 8px' }} />
+                <Shield size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3, color: '#9CA3AF' }} /> HIPAA Compliant
+                <span style={{ width: 1, height: 10, background: '#D1D5DB', margin: '0 8px' }} />
+                10,000+ women helped
+              </div>
+              <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: '0.78rem', color: '#9CA3AF', borderTop: '1px solid #F3F4F6', paddingTop: 10 }}>
+                <Activity size={12} color="#22C55E" style={{ flexShrink: 0 }} />
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tickerMessages[tickerIdx]}</span>
+              </div>
             </div>
           </div>
         </section>
+
+        {/* How Newmi Supports You */}
+        <section className="lp-section" id="how-we-help" aria-labelledby="help-title" style={{ background: '#FFFFFF', borderBottom: '1px solid #F3F4F6' }}>
+          <div className="lp-container">
+            <h2 id="help-title" className="lp-title">How Newmi Supports You</h2>
+            <p className="lp-subtitle">Three ways to get the care you need, when you need it.</p>
+            <div className="lp-grid-3">
+              {[
+                { img: '/images/newmi/support-clinic.png', title: 'Visit Clinics', desc: 'In-Person Care, Near You. Get personalized support at our women and child clinics in Gurugram.', cta: 'Find a Clinic', href: '#find-clinic' },
+                { img: '/images/newmi/support-digital.png', title: 'Digital Consultations', desc: 'Experts On Call, Always. Instant access to top specialists from puberty to menopause.', cta: 'Consult Online', href: 'https://clinic.newmi.in' },
+                { img: '/images/newmi/support-smartopd.png', title: 'Smart OPD', desc: 'Preventive & Proactive care for employers, insurers, and government health programs.', cta: 'Learn More', href: '#conditions' },
+              ].map((item) => (
+                <article key={item.title} style={{ background: '#FFFFFF', borderRadius: 16, padding: 28, border: '1px solid #F3F4F6', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                  <Image src={item.img} alt={item.title} width={64} height={64} style={{ objectFit: 'contain', margin: '0 auto 16px' }} />
+                  <h3 style={{ fontWeight: 700, color: '#111827', fontSize: '1rem' }}>{item.title}</h3>
+                  <p style={{ color: '#6B7280', fontSize: '0.85rem', lineHeight: 1.5, marginTop: 8 }}>{item.desc}</p>
+                  <a href={item.href} onClick={(e) => { if (item.href.startsWith('#')) { e.preventDefault(); scrollTo(item.href.slice(1)) } }}
+                    style={{ display: 'inline-block', marginTop: 16, padding: '8px 20px', background: '#BB2026', color: 'white', fontWeight: 600, fontSize: '0.82rem', borderRadius: 8, textDecoration: 'none' }}>
+                    {item.cta}
+                  </a>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+
 
         {/* Social Proof Toast */}
         {socialToast.show && (
@@ -880,34 +954,30 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
             <p className="lp-subtitle">Experienced and compassionate doctors dedicated to your well-being.</p>
             <div className="lp-grid-3">
               {SPECIALISTS.map((doc, idx) => (
-                <article key={doc.id} className="lp-card" style={{ padding: 24 }}>
+                <article key={doc.id} style={{ background: '#FFFFFF', borderRadius: 16, padding: 24, border: '1px solid #F3F4F6', boxShadow: '0 1px 3px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                    <Image
-                      src={DOCTOR_PORTRAITS[idx]}
-                      alt={`${doc.name} — ${doc.title} at Newmi Care`}
-                      width={80} height={80}
-                      className="ring-2 ring-white shadow-md"
-                      style={{ objectFit: 'cover', borderRadius: '50%', width: 80, height: 80 }}
-                      priority={idx < 2}
-                    />
-                    <div>
-                      <h3 style={{ fontWeight: 700, color: '#111827', fontSize: '1rem' }}>{doc.name}</h3>
-                      <p style={{ color: '#BB2026', fontSize: '0.8rem', fontWeight: 600 }}>{doc.title}</p>
+                    <Image src={DOCTOR_PORTRAITS[idx]} alt={`${doc.name} — ${doc.title} at Newmi Care`} width={96} height={96} priority={idx < 2}
+                      style={{ objectFit: 'cover', borderRadius: '50%', width: 96, height: 96, border: '2px solid #F3F4F6' }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h3 style={{ fontWeight: 700, color: '#111827', fontSize: '0.95rem', lineHeight: 1.3 }}>{doc.name}</h3>
+                      <p style={{ color: '#BB2026', fontSize: '0.78rem', fontWeight: 600, marginTop: 1 }}>{doc.title}</p>
                     </div>
                   </div>
-                  <p style={{ marginTop: 10, color: '#374151', fontSize: '0.82rem' }}>{doc.qualifications}</p>
-                  <div style={{ marginTop: 6, display: 'flex', gap: 12, fontSize: '0.78rem', color: '#6B7280' }}>
-                    <span>🕐 {doc.experience}</span>
-                    <span>🗣️ {doc.languages.join(', ')}</span>
+                  <div style={{ marginTop: 12, padding: '10px 12px', background: '#F9FAFB', borderRadius: 10, fontSize: '0.8rem', color: '#374151', lineHeight: 1.4 }}>{doc.qualifications}</div>
+                  <div style={{ marginTop: 10, display: 'flex', gap: 16, fontSize: '0.78rem', color: '#6B7280' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Clock size={14} /> {doc.experience}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><MessageCircle size={14} /> {doc.languages.join(', ')}</span>
                   </div>
-                  <div style={{ marginTop: 8 }}>
+                  <div style={{ marginTop: 10 }}>
                     {dayAvail(doc.availableDays) ? (
-                      <span style={{ background: '#ECFDF5', color: '#065F46', fontSize: '0.72rem', fontWeight: 600, padding: '2px 10px', borderRadius: 4, display: 'inline-block' }}>Available Today</span>
+                      <span style={{ background: '#ECFDF5', color: '#166534', fontSize: '0.72rem', fontWeight: 600, padding: '3px 10px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#16A34A', display: 'inline-block' }} /> Available Today
+                      </span>
                     ) : (
-                      <span style={{ color: '#6B7280', fontSize: '0.72rem' }}>Next available: {doc.availableDays[0]}</span>
+                      <span style={{ color: '#6B7280', fontSize: '0.75rem' }}>Next: {doc.availableDays[0]}</span>
                     )}
                   </div>
-                  <button className="lp-cta-primary" style={{ marginTop: 14, width: '100%', padding: '10px 0', fontSize: '0.85rem', borderRadius: 10, border: 'none' }}
+                  <button style={{ marginTop: 14, padding: '10px 0', width: '100%', background: '#BB2026', color: 'white', fontWeight: 600, fontSize: '0.85rem', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
                     onClick={() => openBooking(doc.specialization[0])}>
                     Book with {doc.name.split(' ').slice(-1)[0]}
                   </button>
@@ -917,82 +987,73 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
           </div>
         </section>
 
-        <section className="lp-section" id="live-stats" aria-labelledby="stats-title" style={{ background: 'linear-gradient(135deg, #111827 0%, #2D2D4E 100%)', color: 'white' }}>
+        <section className="lp-section" id="live-stats" aria-labelledby="stats-title" style={{ background: '#FFFFFF', borderBottom: '1px solid #F3F4F6' }}>
           <div className="lp-container" style={{ textAlign: 'center' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.1)', borderRadius: 9999, padding: '4px 14px', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.05em', marginBottom: 16, color: 'rgba(255,255,255,0.7)' }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', display: 'inline-block', animation: 'pulse 2s infinite' }} />
-              <Activity size={12} /> POWERED BY NEWMI MARKETING OS
-            </div>
-            <h2 id="stats-title" style={{ fontSize: '2rem', fontWeight: 700, color: 'white' }}>Newmi by the Numbers — Live</h2>
-            <p style={{ color: 'rgba(255,255,255,0.7)', marginTop: 8, fontSize: '0.95rem' }}>Real-time metrics from our practice management platform.</p>
+            <h2 id="stats-title" style={{ fontSize: '1.8rem', fontWeight: 700, color: '#111827' }}>Trusted by Thousands of Women</h2>
+            <p style={{ color: '#6B7280', marginTop: 8, fontSize: '0.9rem' }}>Real outcomes from real women across India.</p>
             <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 20 }}>
               {LIVE_STATS.map((stat, i) => (
-                <div key={stat.label} style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', borderRadius: 16, padding: '28px 16px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'white' }}>
+                <div key={stat.label} style={{ background: '#F9FAFB', borderRadius: 16, padding: '28px 16px', border: '1px solid #F3F4F6' }}>
+                  <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#111827' }}>
                     {stat.format(animatedStats[i] || 0)}
-                    <span style={{ fontSize: '1rem', fontWeight: 400, opacity: 0.7 }}>{stat.suffix}</span>
+                    <span style={{ fontSize: '1rem', fontWeight: 400, color: '#9CA3AF' }}>{stat.suffix}</span>
                   </div>
-                  <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', marginTop: 4 }}>{stat.label}</div>
+                  <div style={{ fontSize: '0.85rem', color: '#6B7280', marginTop: 4 }}>{stat.label}</div>
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-
-        <section className="lp-section" id="trust-badges" style={{ padding: '24px 0', background: '#F9FAFB' }}>
-          <div className="lp-container">
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 32, justifyContent: 'center', alignItems: 'center' }}>
-              {TRUST_BADGES.map((badge) => {
-                if (badge.img) {
+            <div style={{ marginTop: 36, paddingTop: 28, borderTop: '1px solid #E5E7EB' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 28, justifyContent: 'center', alignItems: 'center' }}>
+                {TRUST_BADGES.map((badge) => {
+                  if (badge.img) {
+                    return (
+                      <div key={badge.label} style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#6B7280', fontSize: '0.82rem', fontWeight: 500 }}>
+                        <Image src={badge.img} alt={badge.label} width={22} height={22} style={{ objectFit: 'contain', borderRadius: 2 }} /> {badge.label}
+                      </div>
+                    )
+                  }
+                  const BIcon = badge.icon!
                   return (
-                    <div key={badge.label} style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#6B7280', fontSize: '0.85rem', fontWeight: 500 }}>
-                      <Image src={badge.img} alt={badge.label} width={24} height={24} style={{ objectFit: 'contain', borderRadius: 2 }} /> {badge.label}
+                    <div key={badge.label} style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#6B7280', fontSize: '0.82rem', fontWeight: 500 }}>
+                      <BIcon size={16} color="#9CA3AF" /> {badge.label}
                     </div>
                   )
-                }
-                const BIcon = badge.icon!
-                return (
-                  <div key={badge.label} style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#6B7280', fontSize: '0.85rem', fontWeight: 500 }}>
-                    <BIcon size={18} color="#BB2026" /> {badge.label}
-                  </div>
-                )
-              })}
+                })}
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="lp-section" id="app" aria-labelledby="app-title">
+        <section className="lp-section" id="app" aria-labelledby="app-title" style={{ background: '#FFFFFF', borderBottom: '1px solid #F3F4F6' }}>
           <div className="lp-container">
-            <h2 id="app-title" className="lp-title">Your Health in Your Pocket</h2>
-            <p className="lp-subtitle">Book appointments in seconds, access health records anytime.</p>
-            <div className="lp-grid-2" style={{ alignItems: 'center', gap: 40 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
-                <Image src="/images/newmi/app-mockup.png" alt="Newmi Care mobile app" width={280} height={560} priority className="rounded-2xl shadow-xl" style={{ objectFit: 'contain', maxWidth: 260, height: 'auto' }} />
-                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-                  <a href="#app-store" target="_blank" rel="noopener noreferrer">
-                    <Image src="/images/newmi/app-store-btn.png" alt="Download on the App Store" width={140} height={42} style={{ objectFit: 'contain', height: 42, width: 'auto' }} />
-                  </a>
-                  <a href="#play-store" target="_blank" rel="noopener noreferrer">
-                    <Image src="/images/newmi/play-store-btn.png" alt="Get it on Google Play" width={140} height={42} style={{ objectFit: 'contain', height: 42, width: 'auto' }} />
-                  </a>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+              <h2 id="app-title" style={{ fontSize: '1.6rem', fontWeight: 700, color: '#111827', marginBottom: 8 }}>Your Health in Your Pocket</h2>
+              <p style={{ color: '#6B7280', fontSize: '0.9rem', maxWidth: 440 }}>Book appointments, access records, and chat with doctors — all from your phone.</p>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 48, alignItems: 'center', marginTop: 40 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  <div style={{ position: 'absolute', inset: -4, borderRadius: 24, background: 'linear-gradient(135deg, #BB2026 0%, #9c151c 50%, #6B21A8 100%)', opacity: 0.15 }} />
+                  <Image src="/images/newmi/app-mockup.png" alt="Newmi Care mobile app" width={240} height={480} priority style={{ objectFit: 'contain', width: 240, height: 'auto', position: 'relative', zIndex: 1, borderRadius: 20, boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }} />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', maxWidth: 280 }}>
-                  {['Book Appointments', 'View Health Records', 'Track Symptoms', 'Chat with Doctors', 'Get Reminders', 'Access Reports'].map((f) => (
-                    <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.82rem', color: '#111827' }}>
-                      <CheckCircle size={14} color="#BB2026" /> {f}
-                    </div>
-                  ))}
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+                  <a href="https://apps.apple.com/in/app/newmi-care/id6745163798" target="_blank" rel="noopener noreferrer" style={{ transition: 'opacity 0.15s' }}>
+                    <Image src="/images/newmi/app-store-btn.png" alt="Download on the App Store" width={130} height={40} style={{ objectFit: 'contain', height: 38, width: 'auto' }} />
+                  </a>
+                  <a href="https://play.google.com/store/apps/details?id=com.kahealthcare.newmicare1" target="_blank" rel="noopener noreferrer" style={{ transition: 'opacity 0.15s' }}>
+                    <Image src="/images/newmi/play-store-btn.png" alt="Get it on Google Play" width={130} height={40} style={{ objectFit: 'contain', height: 38, width: 'auto' }} />
+                  </a>
                 </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div style={{ display: 'grid', gap: 16 }}>
                 {APP_FEATURES.map((f) => {
                   const FIcon = f.icon
                   return (
-                    <div key={f.title} style={{ display: 'flex', gap: 12 }}>
-                      <div className="lp-icon-circle" style={{ width: 40, height: 40 }}><FIcon size={20} /></div>
+                    <div key={f.title} style={{ display: 'flex', gap: 14, alignItems: 'flex-start', padding: '14px 16px', background: '#F9FAFB', borderRadius: 12, border: '1px solid #F3F4F6' }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 10, background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#BB2026' }}><FIcon size={20} /></div>
                       <div>
-                        <h3 style={{ fontWeight: 600, color: '#111827', fontSize: '0.9rem' }}>{f.title}</h3>
-                        <p style={{ color: '#6B7280', fontSize: '0.82rem', lineHeight: 1.4 }}>{f.desc}</p>
+                        <h3 style={{ fontWeight: 600, color: '#111827', fontSize: '0.88rem' }}>{f.title}</h3>
+                        <p style={{ color: '#6B7280', fontSize: '0.8rem', lineHeight: 1.5, marginTop: 2 }}>{f.desc}</p>
                       </div>
                     </div>
                   )
@@ -1057,40 +1118,39 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
 
         <section className="lp-section lp-section-alt" id="testimonials" aria-labelledby="testimonials-title">
           <div className="lp-container" style={{ textAlign: 'center' }}>
-            <h2 id="testimonials-title" className="lp-title">But don&apos;t just take our word for it...</h2>
-            <p className="lp-subtitle">Hear from women who trusted Newmi Care with their health journey.</p>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 24 }}>
-              <Image src="/images/newmi/google-reviews-badge.png" alt="Google Reviews" width={120} height={40} style={{ objectFit: 'contain', height: 36, width: 'auto' }} />
-              <span style={{ color: '#6B7280', fontSize: '0.82rem' }}>4.8 average rating from 1,200+ reviews</span>
-            </div>
-            <div style={{ position: 'relative', maxWidth: 500, margin: '0 auto' }}>
-              <button onClick={testPrev} style={{ position: 'absolute', left: -40, top: '50%', transform: 'translateY(-50%)', background: 'white', border: '1px solid #E5E7EB', borderRadius: '50%', width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, zIndex: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>&lsaquo;</button>
+            <h2 id="testimonials-title" className="lp-title">Patient Stories</h2>
+            <p className="lp-subtitle">Real experiences from women who trust Newmi Care.</p>
+            <div style={{ position: 'relative', maxWidth: 520, margin: '0 auto' }}>
               {(() => {
                 const t = TESTIMONIALS[testimonialIdx]
                 return (
-                  <div key={testimonialIdx} className="lp-card" style={{ padding: 28, textAlign: 'center', animation: 'fadeIn 0.4s ease' }}>
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: 2, marginBottom: 8 }}>
-                      {renderStars(t.rating)}
+                  <div key={testimonialIdx} style={{ animation: 'fadeIn 0.35s ease' }}>
+                    <div style={{ background: '#FFFFFF', borderRadius: 16, padding: '32px 36px', boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04)', border: '1px solid #F3F4F6' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center', gap: 3, marginBottom: 12 }}>{renderStars(t.rating)}</div>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#F0FDF4', color: '#166534', fontSize: '0.7rem', fontWeight: 600, padding: '3px 10px', borderRadius: 9999, marginBottom: 14 }}>
+                        <CheckCircle size={10} /> Verified
+                      </div>
+                      <p style={{ fontSize: '0.92rem', color: '#374151', lineHeight: 1.7, margin: '0 auto' }}>&ldquo;{t.text}&rdquo;</p>
+                      <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #F3F4F6' }}>
+                        <p style={{ color: '#111827', fontWeight: 600, fontSize: '0.88rem' }}>{t.name}{t.location ? `, ${t.location}` : ''}</p>
+                        <p style={{ color: '#BB2026', fontSize: '0.78rem', fontWeight: 500, marginTop: 2 }}>{t.condition}</p>
+                      </div>
                     </div>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#FEF2F2', color: '#BB2026', fontSize: '0.7rem', fontWeight: 600, padding: '2px 10px', borderRadius: 9999, marginBottom: 8 }}>
-                      <CheckCircle size={10} /> Verified Patient
-                    </div>
-                    <p style={{ fontSize: '0.9rem', color: '#374151', lineHeight: 1.6, fontStyle: 'italic', maxWidth: 400, margin: '0 auto' }}>&ldquo;{t.text}&rdquo;</p>
-                    <p style={{ marginTop: 12, color: '#111827', fontWeight: 600, fontSize: '0.88rem' }}>{t.name}{t.location ? `, ${t.location}` : ''}</p>
-                    <span style={{ color: '#6B7280', fontSize: '0.75rem' }}>{t.condition}</span>
-                    <div style={{ marginTop: 12, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, fontSize: '0.7rem', color: '#9CA3AF' }}>
-                      <Image src="/images/newmi/google-reviews-badge.png" alt="Google" width={16} height={16} style={{ objectFit: 'contain' }} /> Source: Google Reviews
-                    </div>
-                    <div style={{ marginTop: 8, display: 'flex', justifyContent: 'center', gap: 4 }}>
+                    <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
                       {TESTIMONIALS.map((_, i) => (
                         <button key={i} onClick={() => setTestimonialIdx(i)}
-                          style={{ width: 8, height: 8, borderRadius: '50%', border: 'none', background: i === testimonialIdx ? '#BB2026' : '#D1D5DB', cursor: 'pointer', padding: 0 }} />
+                          style={{ width: i === testimonialIdx ? 20 : 6, height: 6, borderRadius: 9999, border: 'none', background: i === testimonialIdx ? '#BB2026' : '#D1D5DB', cursor: 'pointer', padding: 0, transition: 'all 0.2s ease' }} />
                       ))}
                     </div>
                   </div>
                 )
               })()}
-              <button onClick={testNext} style={{ position: 'absolute', right: -40, top: '50%', transform: 'translateY(-50%)', background: 'white', border: '1px solid #E5E7EB', borderRadius: '50%', width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, zIndex: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>&rsaquo;</button>
+              <button onClick={testPrev} aria-label="Previous" style={{ position: 'absolute', left: -14, top: '42%', transform: 'translateY(-50%)', background: 'white', border: '1px solid #E5E7EB', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', color: '#374151', padding: 0 }}><ChevronLeft size={18} /></button>
+              <button onClick={testNext} aria-label="Next" style={{ position: 'absolute', right: -14, top: '42%', transform: 'translateY(-50%)', background: 'white', border: '1px solid #E5E7EB', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', color: '#374151', padding: 0 }}><ChevronRight size={18} /></button>
+            </div>
+            <div style={{ marginTop: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <Image src="/images/newmi/google-reviews-badge.png" alt="Google" width={80} height={26} style={{ objectFit: 'contain', height: 24, width: 'auto' }} />
+              <span style={{ color: '#6B7280', fontSize: '0.78rem' }}><strong style={{ color: '#374151' }}>4.9+</strong> App Rating</span>
             </div>
           </div>
         </section>
@@ -1132,39 +1192,39 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
           </div>
         </section>
 
-        <section id="contact" style={{ background: 'linear-gradient(135deg, #BB2026 0%, #9c151c 100%)', padding: '80px 0', textAlign: 'center', color: 'white' }} aria-labelledby="cta-title">
-          <div className="lp-container">
-            <h2 id="cta-title" style={{ fontSize: '2rem', fontWeight: 700 }}>Book Your Consultation Today</h2>
-            <p style={{ marginTop: 8, fontSize: '1rem', opacity: 0.9 }}>Take the first step towards better health. Our specialists are just a click away.</p>
-            <button style={{ marginTop: 24, background: 'white', color: '#BB2026', borderRadius: 12, padding: '14px 32px', fontWeight: 700, fontSize: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px rgba(0,0,0,0.2)', fontFamily: 'inherit' }}
+        <section id="contact" style={{ background: 'linear-gradient(135deg, #BB2026 0%, #9c151c 100%)', padding: '72px 0', textAlign: 'center', color: 'white' }} aria-labelledby="cta-title">
+          <div className="lp-container" style={{ maxWidth: 640 }}>
+            <h2 id="cta-title" style={{ fontSize: '1.8rem', fontWeight: 700, lineHeight: 1.3 }}>Book Your Consultation Today</h2>
+            <p style={{ marginTop: 10, fontSize: '0.95rem', opacity: 0.85, lineHeight: 1.5 }}>Take the first step towards better health. Our specialists are just a click away.</p>
+            <button style={{ marginTop: 28, background: 'white', color: '#BB2026', borderRadius: 12, padding: '14px 36px', fontWeight: 700, fontSize: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.15)', fontFamily: 'inherit', transition: 'transform 0.15s, box-shadow 0.15s' }}
               onClick={() => openBooking()}>
               Book Now &mdash; It&apos;s Free
             </button>
-            <div style={{ marginTop: 24, display: 'flex', gap: 24, justifyContent: 'center', flexWrap: 'wrap', fontSize: '0.9rem' }}>
-              <a href="tel:+918929345355" style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'inherit', textDecoration: 'none' }}><Phone size={16} /> +91-8929345355</a>
-              <a href="mailto:care@newmi.in" style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'inherit', textDecoration: 'none' }}><Mail size={16} /> care@newmi.in</a>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }} onClick={() => openBooking()}><MessageCircle size={16} /> Chat on WhatsApp</span>
+            <div style={{ marginTop: 28, display: 'flex', gap: 24, justifyContent: 'center', flexWrap: 'wrap', fontSize: '0.85rem', opacity: 0.9 }}>
+              <a href="tel:+918929345355" style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'inherit', textDecoration: 'none' }}><Phone size={14} /> +91-8929345355</a>
+              <a href="mailto:care@newmi.in" style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'inherit', textDecoration: 'none' }}><Mail size={14} /> care@newmi.in</a>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }} onClick={() => openBooking()}><MessageCircle size={14} /> Chat on WhatsApp</span>
             </div>
           </div>
         </section>
 
         {/* Smart Newsletter Section (B8) */}
-        <section className="lp-section" id="newsletter" aria-labelledby="nl-title" style={{ background: 'linear-gradient(135deg, #BB2026, #9c151c)' }}>
-          <div className="lp-container" style={{ textAlign: 'center', color: 'white' }}>
-            <h2 id="nl-title" style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 8 }}>Stay Informed</h2>
-            <p style={{ fontSize: '0.9rem', opacity: 0.9, maxWidth: 500, margin: '0 auto 24px' }}>Get weekly tips, expert articles, and updates on women&apos;s health straight to your inbox.</p>
+        <section className="lp-section" id="newsletter" aria-labelledby="nl-title" style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E7EB' }}>
+          <div className="lp-container" style={{ textAlign: 'center', maxWidth: 520 }}>
+            <h2 id="nl-title" style={{ fontSize: '1.2rem', fontWeight: 700, color: '#111827', marginBottom: 6 }}>Stay Informed</h2>
+            <p style={{ fontSize: '0.85rem', color: '#6B7280', lineHeight: 1.5, marginBottom: 20 }}>Weekly tips, expert articles, and updates on women&apos;s health straight to your inbox.</p>
             {subscribed ? (
-              <div style={{ padding: '16px 24px', background: 'rgba(255,255,255,0.15)', borderRadius: 12, display: 'inline-block' }}>
-                <span style={{ fontSize: '1.1rem' }}>✅ You&apos;re subscribed! Check your inbox for our welcome email.</span>
+              <div style={{ padding: '14px 20px', background: '#F0FDF4', borderRadius: 10, display: 'inline-block', fontSize: '0.88rem', color: '#166534', fontWeight: 500 }}>
+                ✅ You&apos;re subscribed! Check your inbox for our welcome email.
               </div>
             ) : (
-              <form onSubmit={subscribe} style={{ display: 'flex', gap: 8, maxWidth: 440, margin: '0 auto', flexWrap: 'wrap', justifyContent: 'center' }}>
-                <div>
+              <form onSubmit={subscribe} style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <div style={{ position: 'relative' }}>
                   <input type="email" placeholder="Enter your email" value={email} onChange={e => { setEmail(e.target.value); setEmailError('') }}
-                    style={{ padding: '12px 16px', borderRadius: 10, border: emailError ? '2px solid #FCA5A5' : '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.95)', width: 260, fontSize: '0.9rem', color: '#111827', fontFamily: 'inherit' }} />
-                  {emailError && <p style={{ color: '#FECACA', fontSize: '0.75rem', marginTop: 4, textAlign: 'left' }}>{emailError}</p>}
+                    style={{ padding: '11px 16px', borderRadius: 10, border: emailError ? '2px solid #FCA5A5' : '1px solid #D1D5DB', width: 240, fontSize: '0.88rem', color: '#111827', fontFamily: 'inherit', outline: 'none' }} />
+                  {emailError && <p style={{ color: '#DC2626', fontSize: '0.72rem', marginTop: 4, textAlign: 'left', position: 'absolute' }}>{emailError}</p>}
                 </div>
-                <button type="submit" disabled={subscribing} style={{ padding: '12px 24px', background: 'white', color: '#BB2026', fontWeight: 700, borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontFamily: 'inherit', opacity: subscribing ? 0.7 : 1 }}>
+                <button type="submit" disabled={subscribing} style={{ padding: '11px 22px', background: '#BB2026', color: 'white', fontWeight: 600, borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: '0.88rem', fontFamily: 'inherit', opacity: subscribing ? 0.7 : 1 }}>
                   {subscribing ? 'Subscribing...' : 'Subscribe'}
                 </button>
               </form>
@@ -1188,7 +1248,7 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
         <MessageCircle size={28} />
       </button>
 
-      <button onClick={() => onViewChange('riya')} aria-label="Chat with Nivi AI"
+      <button onClick={() => setSymptomCheckOpen(true)} aria-label="Chat with Nivi AI"
         style={{ position: 'fixed', bottom: showSticky ? 136 : 88, right: 20, width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #BB2026, #9c151c)', color: 'white', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(187,32,38,0.3)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'bottom 0.3s ease', fontSize: 24 }}>
         <MessageSquare size={24} />
       </button>
@@ -1202,33 +1262,33 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
             </div>
             <div>
               <h4 style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, marginBottom: 12 }}>Quick Links</h4>
-              {QUICK_LINKS.map((l) => <p key={l} style={{ marginBottom: 6 }}><a href="#">{l}</a></p>)}
+              {[{ l: 'About', id: 'founders' }, { l: 'Our Specialities', id: 'conditions' }, { l: 'Meet Our Doctors', id: 'doctors' }, { l: 'How It Works', id: 'how-we-help' }, { l: 'Why Newmi Care', id: 'why-newmi' }].map(({ l, id }) => <p key={l} style={{ marginBottom: 6 }}><a href={`#${id}`} onClick={(e) => { e.preventDefault(); scrollTo(id) }} style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.82rem', cursor: 'pointer' }}>{l}</a></p>)}
             </div>
             <div>
               <h4 style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, marginBottom: 12 }}>Services</h4>
-              {SERVICES_LINKS.map((l) => <p key={l} style={{ marginBottom: 6 }}><a href="#">{l}</a></p>)}
+              {[{ l: 'PCOS/PCOD', id: 'conditions' }, { l: 'Fertility', id: 'conditions' }, { l: 'Pregnancy', id: 'conditions' }, { l: 'Menopause', id: 'conditions' }, { l: 'Mental Health', id: 'conditions' }].map(({ l, id }) => <p key={l} style={{ marginBottom: 6 }}><a href={`#${id}`} onClick={(e) => { e.preventDefault(); scrollTo(id) }} style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.82rem', cursor: 'pointer' }}>{l}</a></p>)}
             </div>
             <div>
               <h4 style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, marginBottom: 12 }}>Contact</h4>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', marginBottom: 4 }}>+91-8929343555</p>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', marginBottom: 4 }}>+91-8929345355</p>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', marginBottom: 4 }}>care@newmi.in</p>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem' }}>Gurugram, Haryana</p>
             </div>
             <div>
               <h4 style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, marginBottom: 12 }}>Follow Us</h4>
               <div style={{ display: 'flex', gap: 12 }}>
-                <a href="#" aria-label="Instagram"><Instagram size={20} /></a>
-                <a href="#" aria-label="Facebook"><Facebook size={20} /></a>
-                <a href="#" aria-label="LinkedIn"><Linkedin size={20} /></a>
-                <a href="#" aria-label="Twitter"><Twitter size={20} /></a>
+                <a href="https://www.instagram.com/newmicare/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" style={{ color: 'rgba(255,255,255,0.6)' }}><Instagram size={20} /></a>
+                <a href="https://www.facebook.com/in.newmi" target="_blank" rel="noopener noreferrer" aria-label="Facebook" style={{ color: 'rgba(255,255,255,0.6)' }}><Facebook size={20} /></a>
+                <a href="https://www.linkedin.com/company/newmi/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" style={{ color: 'rgba(255,255,255,0.6)' }}><Linkedin size={20} /></a>
+                <a href="https://twitter.com/newmicare" target="_blank" rel="noopener noreferrer" aria-label="Twitter" style={{ color: 'rgba(255,255,255,0.6)' }}><Twitter size={20} /></a>
               </div>
             </div>
           </div>
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: 32, paddingTop: 16, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>
             <span>&copy; 2025 Newmi Care. All rights reserved.</span>
             <div style={{ display: 'flex', gap: 16 }}>
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms of Service</a>
+              <a href="https://newmi.in/policies/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Privacy Policy</a>
+              <a href="https://newmi.in/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>Terms of Service</a>
             </div>
           </div>
         </div>
