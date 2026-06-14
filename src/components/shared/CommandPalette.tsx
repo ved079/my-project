@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import {
   LayoutDashboard, Users, BarChart2, TrendingUp, ArrowRightLeft,
   Target, Clock, DollarSign, MessageCircle, Calendar,
@@ -13,7 +13,15 @@ import { ALL_LEADS } from '@/lib/data'
 export function CommandPalette({ open, onClose, onNavigate, onLeadSelect }: {
   open: boolean; onClose: () => void; onNavigate: (p: Page) => void; onLeadSelect: (lead: typeof ALL_LEADS[0]) => void
 }) {
-  const [query, setQuery] = useState('')
+  return open ? (
+    <CommandPaletteInner onClose={onClose} onNavigate={onNavigate} onLeadSelect={onLeadSelect} />
+  ) : null
+}
+
+function CommandPaletteInner({ onClose, onNavigate, onLeadSelect }: {
+  onClose: () => void; onNavigate: (p: Page) => void; onLeadSelect: (lead: typeof ALL_LEADS[0]) => void
+}) {
+  const [query, setQueryState] = useState('')
   const [activeIdx, setActiveIdx] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -57,12 +65,10 @@ export function CommandPalette({ open, onClose, onNavigate, onLeadSelect }: {
     ...filteredActions.map(a => ({ type: 'action' as const, id: a.label, label: a.label, icon: a.icon, action: a.action })),
   ]
 
-  useEffect(() => {
-    if (open) { setQuery(''); setActiveIdx(0); setTimeout(() => inputRef.current?.focus(), 50) }
-  }, [open])
-
-  useEffect(() => { setActiveIdx(0)
-  }, [query])
+  const setQuery = (val: string) => {
+    setQueryState(val)
+    setActiveIdx(0)
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') { e.preventDefault(); setActiveIdx(i => Math.min(i + 1, allItems.length - 1)) }
@@ -75,12 +81,10 @@ export function CommandPalette({ open, onClose, onNavigate, onLeadSelect }: {
     }
   }
 
-  if (!open) return null
-
   return (
     <div className="cmd-overlay" onClick={onClose}>
       <div className="cmd-card" onClick={e => e.stopPropagation()} onKeyDown={handleKeyDown}>
-        <input ref={inputRef} className="cmd-input" placeholder="Search pages, leads, actions..." value={query} onChange={e => setQuery(e.target.value)} />
+        <input ref={inputRef} className="cmd-input" placeholder="Search pages, leads, actions..." value={query} onChange={e => setQuery(e.target.value)} autoFocus />
         <div className="cmd-results">
           {filteredPages.length > 0 && (
             <>
