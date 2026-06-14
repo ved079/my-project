@@ -39,7 +39,7 @@ function recordTimestamp(conversationId: string): void {
   MESSAGE_TIMESTAMPS.set(conversationId, timestamps.slice(-50))
 }
 
-function detectSentiment(text: string): SentimentLabel {
+export function detectSentiment(text: string): SentimentLabel {
   if (/bleeding|emergency|miscarriage|dying|severe pain|can't breathe/i.test(text)) return 'distressed'
   if (/urgent|right now|immediately|asap|need now/i.test(text)) return 'urgent'
   const upper = text.replace(/[^A-Za-z]/g, '')
@@ -53,7 +53,7 @@ function detectSentiment(text: string): SentimentLabel {
   return 'neutral'
 }
 
-function classifyIntent(text: string, context: ConversationContext): NiviIntent {
+export function classifyIntent(text: string, context: ConversationContext): NiviIntent {
   if (/bleeding|emergency|miscarriage|hospitalize|severe pain/i.test(text)) return 'complex'
   if (/price|cost|charges|fees|how much|rate|package/i.test(text)) return 'pricing'
   if (/book|schedule|appointment|slot|when can|availability/i.test(text)) return 'booking'
@@ -69,7 +69,7 @@ function classifyIntent(text: string, context: ConversationContext): NiviIntent 
   return 'fallback'
 }
 
-function extractEntities(text: string): { services: string[]; doctors: string[]; timeRefs: string[] } {
+export function extractEntities(text: string): { services: string[]; doctors: string[]; timeRefs: string[] } {
   const lower = text.toLowerCase()
   const services = KNOWN_SERVICES.filter((s) => lower.includes(s.toLowerCase()))
   const doctors = findDoctorNames(lower)
@@ -107,7 +107,7 @@ function updateContext(
   }
 }
 
-function shouldEscalateCheck(text: string, intent: NiviIntent, context: ConversationContext): { escalate: boolean; reason: string } {
+export function shouldEscalateCheck(text: string, intent: NiviIntent, context: ConversationContext): { escalate: boolean; reason: string } {
   if (/bleeding|emergency|miscarriage|hospitalize|severe pain/i.test(text)) {
     return { escalate: true, reason: 'Medical emergency keyword detected' }
   }
@@ -165,7 +165,7 @@ function generateResponse(
   return response
 }
 
-function computeSuggestions(intent: NiviIntent, escalation: { escalate: boolean }): QuickReply[] {
+export function computeSuggestions(intent: NiviIntent, escalation: { escalate: boolean }): QuickReply[] {
   if (escalation.escalate) {
     return [
       { label: 'Connect to medical team', action: 'connect_medical' },

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Eye, ArrowRightLeft, Phone, X, Search } from 'lucide-react'
 import {
   ACCENT, HEADING, GRAY,
@@ -16,18 +16,51 @@ export function LeadsPage() {
   const [page, setPage] = useState(1)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [selectedLead, setSelectedLead] = useState<typeof ALL_LEADS[0] | null>(null)
+  const [realLeads, setRealLeads] = useState<typeof ALL_LEADS | null>(null)
+
+  useEffect(() => {
+    async function fetchLeads() {
+      try {
+        const teamRes = await fetch('/api/team')
+        const members: Array<{id: string; name: string}> = await teamRes.json()
+        if (members.length === 0) return
+        const leadsRes = await fetch(`/api/leads?teamMemberId=${members[0].id}`)
+        const data = await leadsRes.json()
+        if (Array.isArray(data) && data.length > 0) setRealLeads(data)
+      } catch { /* fall back to mock */ }
+    }
+    fetchLeads()
+  }, [])
 
   const perPage = 20
 
+  const leads = realLeads || ALL_LEADS
+
   const filtered = useMemo(() => {
-    return ALL_LEADS.filter(l => {
+    return leads.filter(l => {
       if (search && !l.name.toLowerCase().includes(search.toLowerCase()) && !l.phone.includes(search)) return false
       if (filterSource && l.source !== filterSource) return false
       if (filterStatus && l.status !== filterStatus) return false
       if (filterAssigned && l.assignedTo !== filterAssigned) return false
       return true
     })
-  }, [search, filterSource, filterStatus, filterAssigned])
+  }, [search, filterSource, filterStatus, filterAssigned, leads])
+
+  const exportCSV = () => {
+    const headers = ['Name', 'Phone', 'Email', 'Service', 'Source', 'Status', 'Location', 'Inquiry Time', 'Cost']
+    const rows = filtered.map(l => [l.name, l.phone, '', l.service, l.source, l.status, l.location, '', String(0)])
+    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `newmi-leads-${new Date().toISOString().split('T')[0]}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    useToastStore.getState().addToast('CSV exported', 'success')
+  }
 
   const totalPages = Math.ceil(filtered.length / perPage)
   const paged = filtered.slice((page - 1) * perPage, page * perPage)
@@ -58,7 +91,7 @@ export function LeadsPage() {
           <option value="">All Assigned</option>
           {['Riya Sharma', 'Anil Kapoor', 'Priya Singh', 'Meena Patel', 'Unassigned'].map(s => <option key={s} value={s}>{s}</option>)}
         </select>
-        <button className="filter-export-btn">Export CSV</button>
+        <button className="filter-export-btn" onClick={exportCSV}>Export CSV</button>
       </div>
 
       {/* Leads Table */}

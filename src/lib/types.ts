@@ -10,6 +10,6 @@ export type ToastType = 'success' | 'error' | 'info'
 
 export interface ToastItem { id: number; message: string; type: ToastType; exiting?: boolean }
 
-export type ViewMode = 'admin' | 'riya'
+export type ViewMode = 'admin' | 'riya' | 'landing'
 
 export type RiyaTab = 'command' | 'tasks' | 'inquiries' | 'scoring' | 'pipeline' | 'performance' | 'activity' | 'notifications' | 'nivi'

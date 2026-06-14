@@ -35,7 +35,7 @@ export function Topbar({ active, dateRange, onDateRangeChange, darkMode, onToggl
   return (
     <div className="dash-topbar">
       <div className="dash-topbar-breadcrumb">
-        Newmi Care <ChevronRight size={12} style={{ display: 'inline', verticalAlign: 'middle', margin: '0 2px' }} /> <span>{sectionNames[active]}</span>
+        Newmi Care <span className="topbar-demo-badge">DEMO</span> <ChevronRight size={12} style={{ display: 'inline', verticalAlign: 'middle', margin: '0 2px' }} /> <span>{sectionNames[active]}</span>
       </div>
       <div className="dash-topbar-daterange">
         {(['7D', '30D', '90D'] as DateRange[]).map(d => (

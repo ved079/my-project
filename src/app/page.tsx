@@ -40,6 +40,7 @@ import { MyPerformancePage } from '@/components/riya/MyPerformancePage'
 import { MyActivityPage } from '@/components/riya/MyActivityPage'
 import { NotificationsPage } from '@/components/riya/NotificationsPage'
 import { NiviAssistantPage } from '@/components/riya/NiviAssistantPage'
+import { LandingPage } from '@/components/pages/LandingPage'
 
 function RiyaDashboard({ activeTab, onTabChange }: { activeTab: RiyaTab; onTabChange: (t: RiyaTab) => void }) {
   const [teamMemberId, setTeamMemberId] = useState('')
@@ -134,27 +135,33 @@ export default function NewmiMarketingOS() {
 
   return (
     <div className="app-root">
-      <ToastContainer toasts={toasts} />
-      {viewMode === 'admin' && (
-        <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} onNavigate={p => { setActivePage(p); setCmdOpen(false) }} onLeadSelect={lead => { setActivePage('leads'); setCmdOpen(false) }} />
-      )}
-      <div className="dash-shell">
-        {viewMode === 'admin' ? (
-          <Sidebar active={activePage} onNavigate={setActivePage} />
-        ) : (
-          <RiyaSidebar activeTab={riyaTab} onTabChange={setRiyaTab} />
-        )}
-        <div className="dash-main">
-          {viewMode === 'admin' ? (
-            <Topbar active={activePage} dateRange={dateRange} onDateRangeChange={setDateRange} darkMode={darkMode} onToggleDark={() => setDarkMode(d => !d)} onOpenCmd={() => setCmdOpen(true)} addToast={addToast} viewMode={viewMode} onViewChange={setViewMode} />
-          ) : (
-            <RiyaTopbar activeTab={riyaTab} viewMode={viewMode} onViewChange={setViewMode} />
+      {viewMode === 'landing' ? (
+        <LandingPage onViewChange={setViewMode} />
+      ) : (
+        <>
+          <ToastContainer toasts={toasts} />
+          {viewMode === 'admin' && (
+            <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} onNavigate={p => { setActivePage(p); setCmdOpen(false) }} onLeadSelect={lead => { setActivePage('leads'); setCmdOpen(false) }} />
           )}
-          <main className="dash-content" style={{ paddingBottom: viewMode === 'riya' ? '72px' : undefined }}>
-            {viewMode === 'admin' ? renderPage() : <RiyaDashboard activeTab={riyaTab} onTabChange={setRiyaTab} />}
-          </main>
-        </div>
-      </div>
+          <div className="dash-shell">
+            {viewMode === 'admin' ? (
+              <Sidebar active={activePage} onNavigate={setActivePage} />
+            ) : (
+              <RiyaSidebar activeTab={riyaTab} onTabChange={setRiyaTab} />
+            )}
+            <div className="dash-main">
+              {viewMode === 'admin' ? (
+                <Topbar active={activePage} dateRange={dateRange} onDateRangeChange={setDateRange} darkMode={darkMode} onToggleDark={() => setDarkMode(d => !d)} onOpenCmd={() => setCmdOpen(true)} addToast={addToast} viewMode={viewMode} onViewChange={setViewMode} />
+              ) : (
+                <RiyaTopbar activeTab={riyaTab} viewMode={viewMode} onViewChange={setViewMode} />
+              )}
+              <main className="dash-content" style={{ paddingBottom: viewMode === 'riya' ? '72px' : undefined }}>
+                {viewMode === 'admin' ? renderPage() : <RiyaDashboard activeTab={riyaTab} onTabChange={setRiyaTab} />}
+              </main>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

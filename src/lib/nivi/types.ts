@@ -82,6 +82,7 @@ export interface NiviConversation {
   escalatedAt?: Date
   escalationReason?: string
   lastActivity: Date
+  lastSuggestions?: QuickReply[]
 }
 
 export interface NiviResponse {

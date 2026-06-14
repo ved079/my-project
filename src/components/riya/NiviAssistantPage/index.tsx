@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
-import type { NiviConversation, NiviMessage, NiviIntent } from '@/lib/nivi/types'
+import { useState, useMemo, useCallback, useRef } from 'react'
+import type { NiviConversation, NiviMessage, NiviIntent, QuickReply } from '@/lib/nivi/types'
 import { MOCK_CONVERSATIONS } from '@/lib/nivi/conversations'
 import { processMessage } from '@/lib/nivi/engine'
 import { ConversationList } from './ConversationList'
@@ -10,14 +10,12 @@ import { LeadCard } from './LeadCard'
 import { SlackSummary } from './SlackSummary'
 import { Analytics } from './Analytics'
 
-let messageCounter = 0
-
-function generateId(prefix: string): string {
-  messageCounter += 1
-  return `${prefix}-${Date.now()}-${messageCounter}`
+function generateId(prefix: string, counter: number): string {
+  return `${prefix}-${Date.now()}-${counter}`
 }
 
 export function NiviAssistantPage() {
+  const msgCounterRef = useRef(0)
   const [conversations, setConversations] = useState<NiviConversation[]>(MOCK_CONVERSATIONS)
   const [activeConversationId, setActiveConversationId] = useState(MOCK_CONVERSATIONS[0]?.id || '')
   const [isTyping, setIsTyping] = useState(false)
@@ -38,11 +36,14 @@ export function NiviAssistantPage() {
   }, [])
 
   const handleSendMessage = useCallback(
-    (text: string) => {
+    async (text: string) => {
       if (!activeConversation) return
 
+      msgCounterRef.current += 1
+      const counter = msgCounterRef.current
+
       const patientMsg: NiviMessage = {
-        id: generateId('msg-patient'),
+        id: generateId('msg-patient', counter),
         from: 'patient',
         text,
         timestamp: new Date(),
@@ -58,13 +59,52 @@ export function NiviAssistantPage() {
 
       setIsTyping(true)
 
-      const response = processMessage(activeConversation.id, text, activeConversation.context)
-
-      setTimeout(() => {
-        setIsTyping(false)
+      try {
+        const res = await fetch('/api/nivi/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            conversationId: activeConversation.id,
+            message: text,
+            patientName: activeConversation.patient.name,
+          }),
+        })
+        const data = await res.json()
 
         const niviMsg: NiviMessage = {
-          id: generateId('msg-nivi'),
+          id: generateId('msg-nivi', counter),
+          from: 'nivi',
+          text: data.text,
+          timestamp: new Date(),
+          confidence: data.confidence,
+          intent: extractIntentFromResponse(data.text) || undefined,
+        }
+
+        setConversations((prev) =>
+          prev.map((c) => {
+            if (c.id !== activeConversation.id) return c
+            const updated = {
+              ...c,
+              messages: [...c.messages, niviMsg],
+              lastActivity: new Date(),
+              lastSuggestions: (data.suggestions || []) as QuickReply[],
+              context: {
+                ...c.context,
+                turnCount: c.context.turnCount + 1,
+                emotionalState: data.shouldEscalate ? 'distressed' as const : c.context.emotionalState,
+              },
+            }
+            if (data.shouldEscalate) {
+              return { ...updated, status: 'escalated' as const, escalationReason: data.escalationReason, escalatedAt: new Date() }
+            }
+            return updated
+          })
+        )
+      } catch {
+        const response = processMessage(activeConversation.id, text, activeConversation.context)
+
+        const niviMsg: NiviMessage = {
+          id: generateId('msg-nivi', counter),
           from: 'nivi',
           text: response.text,
           timestamp: new Date(),
@@ -75,28 +115,18 @@ export function NiviAssistantPage() {
         setConversations((prev) =>
           prev.map((c) => {
             if (c.id !== activeConversation.id) return c
-            let updated = {
+            return {
               ...c,
               messages: [...c.messages, niviMsg],
               lastActivity: new Date(),
-              context: {
-                ...c.context,
-                turnCount: c.context.turnCount + 1,
-                emotionalState: response.shouldEscalate ? 'distressed' : c.context.emotionalState,
-              },
+              lastSuggestions: (response.suggestions || []) as QuickReply[],
+              context: { ...c.context, turnCount: c.context.turnCount + 1 },
             }
-            if (response.shouldEscalate) {
-              updated = {
-                ...updated,
-                status: 'escalated',
-                escalationReason: response.escalationReason,
-                escalatedAt: new Date(),
-              }
-            }
-            return updated
           })
         )
-      }, response.delayMs)
+      } finally {
+        setIsTyping(false)
+      }
     },
     [activeConversation]
   )
@@ -111,7 +141,6 @@ export function NiviAssistantPage() {
 
   return (
     <div className="flex flex-1 min-h-0">
-      {/* Mobile: stack vertically, desktop: 3-column grid */}
       <div className="md:hidden flex flex-col flex-1 min-h-0">
         <div className="h-full flex flex-col">
           <ChatView conversation={activeConversation} onSendMessage={handleSendMessage} isTyping={isTyping} />

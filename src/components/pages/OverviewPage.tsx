@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { ArrowUp, ArrowDown } from 'lucide-react'
 import {
   AreaChart, XAxis, YAxis, Tooltip, ResponsiveContainer, Area,
@@ -12,6 +13,42 @@ import {
 import { AnimatedNumber } from '@/components/shared/AnimatedNumber'
 
 export function OverviewPage() {
+  const [realKpi, setRealKpi] = useState<typeof KPI_DATA | null>(null)
+
+  useEffect(() => {
+    async function fetchRealData() {
+      try {
+        const teamRes = await fetch('/api/team')
+        const members: Array<{id: string; name: string}> = await teamRes.json()
+        if (members.length === 0) return
+
+        const leadsRes = await fetch(`/api/leads?teamMemberId=${members[0].id}`)
+        const leads: Array<{status: string; cost: number; inquiryTime: string}> = await leadsRes.json()
+        if (!Array.isArray(leads) || leads.length === 0) return
+
+        const today = new Date().toDateString()
+        const leadsToday = leads.filter(l => new Date(l.inquiryTime).toDateString() === today).length
+        const totalCost = leads.reduce((s, l) => s + (l.cost || 0), 0)
+        const consultationRate = leads.filter(l => l.status === 'Consultation Booked').length / leads.length * 100
+        const converted = leads.filter(l => l.status === 'Converted')
+        const revenue = converted.reduce((s, l) => s + (l.cost || 0), 0)
+        const cpl = totalCost / leads.length || 0
+
+        setRealKpi([
+          { label: 'Total Leads', value: String(leads.length), delta: '—', deltaDir: 'up' as const, spark: [30, 35, 28, 42, 38, 45, leads.length] },
+          { label: 'Leads Today', value: String(leadsToday), delta: '—', deltaDir: 'up' as const, spark: [5, 8, 12, 7, 9, 11, leadsToday] },
+          { label: 'Cost Per Lead', value: `₹${Math.round(cpl)}`, delta: '—', deltaDir: 'down' as const, spark: [380, 340, 310, 300, 295, 290, Math.round(cpl)] },
+          { label: 'Consultation Rate', value: `${consultationRate.toFixed(1)}%`, delta: '—', deltaDir: 'up' as const, spark: [10, 11, 12, 12.5, 13, 13.5, consultationRate] },
+          { label: 'Converted (Month)', value: String(converted.length), delta: '—', deltaDir: 'up' as const, spark: [20, 24, 28, 30, 32, 35, converted.length] },
+          { label: 'Revenue Influenced', value: `₹${(revenue / 100000).toFixed(1)}L`, delta: '—', deltaDir: 'up' as const, spark: [5.2, 5.8, 6.4, 6.9, 7.2, 7.8, revenue / 100000] },
+        ])
+      } catch { /* fall back to mock */ }
+    }
+    fetchRealData()
+  }, [])
+
+  const displayKpi = realKpi || KPI_DATA
+
   return (
     <div>
       <p className="section-label">GROWTH OVERVIEW</p>
@@ -20,7 +57,7 @@ export function OverviewPage() {
 
       {/* KPI Row */}
       <div className="kpi-grid-6">
-        {KPI_DATA.map((kpi, i) => (
+        {displayKpi.map((kpi, i) => (
           <div key={i} className="kpi-card">
             <div className="kpi-card-top">
               <div>

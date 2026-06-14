@@ -85,6 +85,35 @@ model StatusChange {
   createdAt      DateTime    @default(now())
 }
 
+model NiviConversation {
+  id              String         @id @default(cuid())
+  patientName     String         @default("")
+  patientPhone    String         @default("")
+  status          String         @default("active")
+  unreadCount     Int            @default(1)
+  escalatedTo     String?
+  escalatedAt     DateTime?
+  escalationReason String?
+  contextData     String         @default("{}")
+  lastSuggestions String         @default("[]")
+  lastActivity    DateTime       @default(now())
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  messages        NiviMessage[]
+}
+
+model NiviMessage {
+  id             String          @id @default(cuid())
+  conversation   NiviConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversationId String
+  from           String
+  text           String
+  confidence     String?
+  intent         String?
+  sentiment      String?
+  createdAt      DateTime        @default(now())
+}
+
 model ActivityLog {
   id             String      @id @default(cuid())
   teamMember     TeamMember  @relation(fields: [teamMemberId], references: [id])

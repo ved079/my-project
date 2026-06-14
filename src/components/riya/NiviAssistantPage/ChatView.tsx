@@ -141,7 +141,7 @@ export function ChatView({
       {/* Quick Replies */}
       {!isLocked && !isTyping && (
         <div className="shrink-0 px-4 py-2 border-t border-gray-100">
-          <QuickReplies suggestions={[]} onAction={() => {}} disabled />
+          <QuickReplies suggestions={conversation.lastSuggestions || []} onAction={(action) => onSendMessage(action)} disabled={isLocked || isTyping} />
         </div>
       )}
 

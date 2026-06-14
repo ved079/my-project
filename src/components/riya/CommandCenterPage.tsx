@@ -20,26 +20,33 @@ const taskTypeInfo: Record<string, { color: string; bg: string; label: string }>
   callback: { color: '#6B7280', bg: '#F3F4F6', label: 'Callback' },
 }
 
-function SLAHeroTimer({ slaMinutes, elapsedMinutes }: { slaMinutes: number; elapsedMinutes: number }) {
-  const [remaining, setRemaining] = useState(slaMinutes * 60 - elapsedMinutes * 60)
+function SLAHeroTimer({ slaDeadline }: { slaDeadline: Date }) {
+  const [remaining, setRemaining] = useState(slaDeadline.getTime() - Date.now())
   useEffect(() => {
-    const interval = setInterval(() => setRemaining(prev => prev - 1), 1000)
+    const interval = setInterval(() => setRemaining(slaDeadline.getTime() - Date.now()), 1000)
     return () => clearInterval(interval)
-  }, [])
+  }, [slaDeadline])
   const isOverdue = remaining <= 0
-  const totalSec = slaMinutes * 60
-  const pctLeft = totalSec > 0 ? (remaining / totalSec) * 100 : 0
   const absR = Math.abs(remaining)
-  const hh = Math.floor(absR / 3600)
-  const mm = Math.floor((absR % 3600) / 60)
-  const ss = absR % 60
+  const totalSec = Math.round(absR / 1000)
+  const hh = Math.floor(totalSec / 3600)
+  const mm = Math.floor((totalSec % 3600) / 60)
+  const ss = totalSec % 60
   const pad = (n: number) => n.toString().padStart(2, '0')
   let label = ''
   let cls = 'sla-safe'
-  if (isOverdue) { cls = 'sla-breached'; label = `${hh > 0 ? `${hh}h ` : ''}${pad(mm)}:${pad(ss)} overdue` }
-  else if (pctLeft <= 25) { cls = 'sla-breached'; label = `${hh > 0 ? `${hh}h ` : ''}${pad(mm)}:${pad(ss)} left` }
-  else if (pctLeft <= 50) { cls = 'sla-warning'; label = `${hh > 0 ? `${hh}h ` : ''}${pad(mm)}:${pad(ss)} left` }
-  else { label = `${hh > 0 ? `${hh}h ` : ''}${pad(mm)}:${pad(ss)} left` }
+  if (isOverdue) {
+    cls = 'sla-breached'
+    label = `${hh > 0 ? `${hh}h ` : ''}${pad(mm)}:${pad(ss)} overdue`
+  } else if (remaining < 15 * 60 * 1000) {
+    cls = 'sla-breached'
+    label = `${hh > 0 ? `${hh}h ` : ''}${pad(mm)}:${pad(ss)} left`
+  } else if (remaining < 30 * 60 * 1000) {
+    cls = 'sla-warning'
+    label = `${hh > 0 ? `${hh}h ` : ''}${pad(mm)}:${pad(ss)} left`
+  } else {
+    label = `${hh > 0 ? `${hh}h ` : ''}${pad(mm)}:${pad(ss)} left`
+  }
   return <span className={`sla-timer ${cls}`}>{label}</span>
 }
 
@@ -73,7 +80,7 @@ export function CommandCenterPage() {
             <div key={inq.id} className={`kpi-card cmd-urgent-card ${severityBorder[inq.severity]}`}>
               <div className="cmd-urgent-head">
                 <span className="cmd-urgent-badge" style={{ background: sev.bg, color: sev.color }}>{sev.text}</span>
-                <SLAHeroTimer slaMinutes={inq.slaMinutes} elapsedMinutes={inq.elapsedMinutes} />
+                <SLAHeroTimer slaDeadline={new Date(Date.now() - (inq.elapsedMinutes - inq.slaMinutes) * 60000)} />
               </div>
               <div className="cmd-urgent-name">{inq.name}</div>
               <div className="cmd-urgent-service">{inq.service}</div>
