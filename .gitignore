@@ -59,6 +59,15 @@ server.log
 *.webp
 *.bmp
 
+# But keep Newmi Care brand assets
+!public/images/newmi/
+public/images/newmi/*
+!public/images/newmi/*.svg
+!public/images/newmi/*.png
+!public/images/newmi/*.jpg
+!public/images/newmi/*.jpeg
+!public/images/newmi/*.ico
+
 # Reports & generated files
 *.pdf
 *.py
