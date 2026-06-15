@@ -43,7 +43,7 @@ function openWhatsApp(msg?: string) {
   const url = msg
     ? `https://wa.me/918929345355?text=${encodeURIComponent(msg)}`
     : WHATSAPP_URL
-  window.open(url, '_blank')
+  window.open(url, '_blank', 'noopener,noreferrer')
 }
 
 const FAQ_ITEMS = [
@@ -233,7 +233,7 @@ export function LandingPage() {
     if (!isValidEmail(email.trim())) { setEmailError('Please enter a valid email address'); return }
     setSubscribing(true)
     try {
-      const res = await fetch('/api/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email.trim() }) })
+      const res = await fetch('/api/newsletter', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email.trim() }) })
       if (!res.ok) throw new Error()
       setSubscribed(true); setEmail('')
     } catch { setEmailError('Something went wrong. Please try again.') }
@@ -512,81 +512,7 @@ export function LandingPage() {
     return Math.min(d, N - d)
   }, [N])
 
-  useEffect(() => {
-    document.title = 'PCOS Treatment, Fertility & Women\'s Health Clinic in Gurugram | Newmi Care'
 
-    const setMeta = (name: string, content: string) => {
-      let el = document.querySelector(`meta[name="${name}"]`)
-      if (!el) { el = document.createElement('meta'); el.setAttribute('name', name); document.head.appendChild(el) }
-      el.setAttribute('content', content)
-    }
-    const setMetaProp = (prop: string, content: string) => {
-      let el = document.querySelector(`meta[property="${prop}"]`)
-      if (!el) { el = document.createElement('meta'); el.setAttribute('property', prop); document.head.appendChild(el) }
-      el.setAttribute('content', content)
-    }
-
-    setMeta('description', 'Newmi Care — India\'s leading women\'s health platform. Expert gynecologists for PCOS/PCOD, IVF, fertility, pregnancy, and menopause care in Gurugram. Book your free consultation today.')
-    setMeta('keywords', 'PCOS treatment Gurugram, IVF clinic Gurugram, women\'s health clinic, fertility specialist, pregnancy care Gurugram, menopause treatment, gynecologist Gurugram, Newmi Care, PCOD doctor, women health platform India')
-    setMeta('robots', 'index, follow')
-    setMetaProp('og:title', 'Newmi Care — Women\'s Health Clinic in Gurugram')
-    setMetaProp('og:description', 'India\'s leading women\'s health platform. Expert care for PCOS, IVF, pregnancy, and menopause.')
-    setMetaProp('og:image', '/images/newmi/why-section.png')
-    setMetaProp('og:type', 'website')
-    setMetaProp('og:url', 'https://www.newmicare.com/')
-    setMetaProp('og:locale', 'en_IN')
-    setMetaProp('og:site_name', 'Newmi Care')
-    setMeta('twitter:card', 'summary_large_image')
-    setMeta('twitter:title', 'Newmi Care — Women\'s Health Clinic in Gurugram')
-    setMeta('twitter:description', 'India\'s leading women\'s health platform. Expert care for PCOS, IVF, pregnancy, and menopause.')
-    setMeta('twitter:image', '/images/newmi/why-section.png')
-
-    let canonical = document.querySelector('link[rel="canonical"]')
-    if (!canonical) { canonical = document.createElement('link'); canonical.setAttribute('rel', 'canonical'); document.head.appendChild(canonical) }
-    canonical.setAttribute('href', 'https://www.newmicare.com/')
-
-    const ldScript = document.createElement('script')
-    ldScript.id = 'newmi-ld'
-    ldScript.type = 'application/ld+json'
-    ldScript.textContent = JSON.stringify({
-      '@context': 'https://schema.org',
-      '@graph': [
-        {
-          '@type': 'MedicalBusiness',
-          name: 'Newmi Care',
-          address: [
-            { '@type': 'PostalAddress', streetAddress: 'Spaze Corporate Park, Sector 69', addressLocality: 'Gurugram', addressRegion: 'Haryana', postalCode: '122001', addressCountry: 'IN' },
-            { '@type': 'PostalAddress', streetAddress: 'Bestech Central Square Mall, Sector 57', addressLocality: 'Gurugram', addressRegion: 'Haryana', postalCode: '122002', addressCountry: 'IN' },
-          ],
-          geo: { '@type': 'GeoCoordinates', latitude: 28.4595, longitude: 77.0266 },
-          medicalSpecialty: ['Gynecology', 'Obstetrics', 'Fertility', 'Endocrinology', 'Oncology'],
-          availableService: ['PCOS Treatment', 'IVF', 'Pregnancy Care', 'Menopause Treatment', 'Mental Health'],
-          aggregateRating: { '@type': 'AggregateRating', ratingValue: 4.9, reviewCount: 1200 },
-        },
-        {
-          '@type': 'FAQPage',
-          mainEntity: FAQ_ITEMS.map((item) => ({
-            '@type': 'Question', name: item.q,
-            acceptedAnswer: { '@type': 'Answer', text: item.a },
-          })),
-        },
-        ...SPECIALISTS.map((doc) => ({
-          '@type': 'Physician',
-          name: doc.name,
-          medicalSpecialty: doc.specialization.join(', '),
-          hospitalAffiliation: { '@type': 'Hospital', name: 'Newmi Care' },
-          address: { '@type': 'PostalAddress', addressLocality: 'Gurugram', addressRegion: 'Haryana', addressCountry: 'IN' },
-        })),
-      ],
-    })
-    document.head.appendChild(ldScript)
-
-    return () => {
-      const s = document.getElementById('newmi-ld')
-      if (s) s.remove()
-      document.title = 'Newmi Marketing OS'
-    }
-  }, [])
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -890,27 +816,6 @@ export function LandingPage() {
                   )
                 })}
               </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="lp-section lp-section-alt" id="services" aria-labelledby="services-title">
-          <div className="lp-container">
-            <h2 id="services-title" className="lp-title">How Newmi Supports You</h2>
-            <p className="lp-subtitle">Comprehensive care across every channel — in-clinic, online, and preventive.</p>
-            <div className="lp-grid-3">
-              {SUPPORT_SERVICES.map((item) => (
-                <article key={item.title} className="lp-card" style={{ padding: 24 }}>
-                  <Image src={item.img} alt={`${item.title} at Newmi Care`} width={48} height={48} className="rounded-lg" style={{ objectFit: 'contain' }} />
-                  <h3 style={{ marginTop: 12, fontWeight: 600, color: '#111827', fontSize: '1rem' }}>{item.title}</h3>
-                  <p style={{ marginTop: 2, color: '#6B7280', fontSize: '0.8rem', fontWeight: 500 }}>{item.subtitle}</p>
-                  <p style={{ marginTop: 8, color: '#6B7280', fontSize: '0.88rem', lineHeight: 1.5 }}>{item.desc}</p>
-                  <button style={{ marginTop: 12, background: 'none', border: 'none', color: '#BB2026', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4 }}
-                    onClick={() => openBooking()}>
-                    {item.link} &rarr;
-                  </button>
-                </article>
-              ))}
             </div>
           </div>
         </section>
@@ -1244,6 +1149,7 @@ export function LandingPage() {
                 </button>
               </form>
             )}
+            <p style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: 10 }}>We respect your privacy. Unsubscribe anytime.</p>
           </div>
         </section>
       </main>

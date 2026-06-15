@@ -86,7 +86,7 @@ export function BookingModal({
           utmCampaign: utm.utmCampaign || '',
         }),
       }).catch(() => {})
-      window.open(`https://wa.me/918929345355?text=${msg}`, '_blank')
+      window.open(`https://wa.me/918929345355?text=${msg}`, '_blank', 'noopener,noreferrer')
     }
   }
 

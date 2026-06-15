@@ -19,20 +19,30 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
-  title: "Newmi Care — Marketing Operations Dashboard",
+  title: {
+    default: "Newmi Care — India's Trusted Women's Health Platform",
+    template: "%s | Newmi Care",
+  },
   description:
-    "Marketing operations dashboard for Newmi Care — India's leading women's health platform. Track leads, revenue, channel performance, and team productivity.",
+    "India's leading women's health platform. Expert gynecologists for PCOS, fertility, pregnancy, and menopause care in Gurugram. Book your consultation today.",
   keywords: [
-    "women's health clinic Gurugram",
-    "PCOS treatment India",
-    "IVF clinic Gurugram",
-    "fertility specialist India",
-    "pregnancy care Gurugram",
-    "menopause treatment",
+    "women's health",
+    "gynecology",
+    "fertility clinic",
+    "PCOS treatment",
+    "pregnancy care",
+    "menopause support",
+    "gynecologist gurgaon",
     "Newmi Care",
-    "best gynaecologist Gurugram",
-    "women healthcare India",
+    "best gynecologist gurgaon",
+    "fertility specialist gurgaon",
+    "PCOS doctor gurgaon",
+    "obstetrician gurgaon",
+    "reproductive health india",
   ],
+  authors: [{ name: "Newmi Care", url: BASE_URL }],
+  creator: "Newmi Care",
+  publisher: "Newmi Care",
   robots: {
     index: true,
     follow: true,
@@ -47,25 +57,38 @@ export const metadata: Metadata = {
   icons: {
     icon: "/images/newmi/favicon.ico",
     shortcut: "/images/newmi/favicon-32.png",
+    apple: "/images/newmi/favicon.ico",
   },
   manifest: "/manifest.webmanifest",
   openGraph: {
-    title: "Newmi Care — Women's Health Clinic in Gurugram",
-    description: "India's leading women's health platform. Expert care for PCOS, IVF, pregnancy, and menopause.",
+    type: "website",
+    locale: "en_IN",
     url: BASE_URL,
     siteName: "Newmi Care",
-    images: [{ url: "/images/newmi/why-section.png", width: 1200, height: 630 }],
-    locale: "en_IN",
-    type: "website",
+    title: "Newmi Care — India's Trusted Women's Health Platform",
+    description:
+      "Expert gynecology, fertility, PCOS management, pregnancy care & menopause support. Book appointments at our Gurugram clinics. Call +91-8929345355.",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Newmi Care — Women's Health Platform",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Newmi Care — Women's Health Clinic in Gurugram",
-    description: "India's leading women's health platform. Expert care for PCOS, IVF, pregnancy, and menopause.",
+    title: "Newmi Care — India's Trusted Women's Health Platform",
+    description:
+      "Expert gynecology, fertility, PCOS management, pregnancy care & menopause support in Gurugram.",
+    images: ["/opengraph-image"],
+    site: "@newmicare",
   },
   alternates: {
     canonical: BASE_URL,
   },
+  category: "healthcare",
 };
 
 export default function RootLayout({

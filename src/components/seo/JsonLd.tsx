@@ -29,6 +29,7 @@ export function JsonLd() {
           addressCountry: "IN",
         },
       ],
+      geo: { "@type": "GeoCoordinates", latitude: 28.4595, longitude: 77.0266 },
       medicalSpecialty: [
         "Obstetrics",
         "Gynecology",
@@ -52,11 +53,12 @@ export function JsonLd() {
         { "@type": "OpeningHoursSpecification", dayOfWeek: "Friday", opens: "09:00", closes: "19:00" },
         { "@type": "OpeningHoursSpecification", dayOfWeek: "Saturday", opens: "09:00", closes: "17:00" },
       ],
+      aggregateRating: { "@type": "AggregateRating", ratingValue: 4.9, reviewCount: 1200 },
       sameAs: [
         "https://www.instagram.com/newmicare/",
-        "https://www.facebook.com/newmicare",
-        "https://www.linkedin.com/company/newmicare",
-        "https://x.com/newmicare",
+        "https://www.facebook.com/in.newmi",
+        "https://www.linkedin.com/company/newmi/",
+        "https://twitter.com/newmicare",
       ],
     },
     {
@@ -65,34 +67,58 @@ export function JsonLd() {
       mainEntity: [
         {
           "@type": "Question",
-          name: "What is the cost of PCOS treatment at Newmi Care?",
+          name: "What conditions does Newmi Care treat?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "PCOS treatment consultation at Newmi Care starts from ₹800. The exact cost depends on the diagnostic tests and treatment plan recommended by our specialists.",
+            text: "Newmi Care specializes in women's health across every life stage — from puberty to menopause. Our care plans cover PCOS/PCOD, fertility issues, pregnancy and postpartum care, mental health, weight management, menopause, cancer support, pediatric care, and sexual health.",
           },
         },
         {
           "@type": "Question",
-          name: "Does Newmi Care offer IVF treatment?",
+          name: "Do I need a referral to book a consultation?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Yes, Newmi Care offers comprehensive fertility and IVF treatment with experienced specialists. IVF treatment costs range from ₹1.2L to ₹2.5L depending on the treatment protocol.",
+            text: "No referral is needed. You can book a consultation directly through our website, app, or by calling +91-8929343555. Our team will match you with the right specialist based on your concern.",
           },
         },
         {
           "@type": "Question",
-          name: "Where are Newmi Care clinics located?",
+          name: "Are online consultations available?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Newmi Care has clinics in Gurugram — at Spaze Corporate Park, Sector 69 and Bestech Central Square Mall, Sector 57. We also offer pan-India digital consultations.",
+            text: "Yes, Newmi offers secure video consultations with qualified specialists across women's health. You can book a digital consultation through the Newmi app or website, available Monday to Saturday, 9 AM to 9 PM.",
           },
         },
         {
           "@type": "Question",
-          name: "Can I book an online consultation with a gynecologist?",
+          name: "What are Newmi's clinic locations?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Yes, Newmi Care offers secure video consultations with experienced gynecologists. You can book instantly through our platform and consult from the comfort of your home.",
+            text: "Newmi currently operates clinics in Gurugram — at Sector 69 (Spaze Corporate Park) and Sector 57 (Bestech Central Square Mall). Both clinics offer consultation, pathology, radiology, medicines, vaccination, wellness, and physiotherapy services.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Is my health information kept private?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Absolutely. Newmi Care is HIPAA, GDPR, and ISO compliant. Your health data is encrypted, and we follow the highest standards of data privacy.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How much does a consultation cost?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Consultation fees vary by specialist and condition. We offer both in-clinic and digital consultation options. Contact us at +91-8929343555 or care@newmi.in for specific pricing.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Can I use Newmi for pregnancy care from the beginning?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes, Newmi provides end-to-end prenatal care from the first trimester through delivery and postpartum. Our pregnancy care plan includes regular check-ups, ultrasound scheduling, nutrition planning, high-risk monitoring, and emergency support.",
           },
         },
       ],
@@ -106,6 +132,46 @@ export function JsonLd() {
         { "@type": "ListItem", position: 3, name: "Care Plans", item: "https://newmi.in/#care-plans" },
         { "@type": "ListItem", position: 4, name: "FAQ", item: "https://newmi.in/#faq" },
       ],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Physician",
+      name: "Dr. Priya Sharma",
+      medicalSpecialty: "Pregnancy, Prenatal, Delivery, General Gynecology",
+      hospitalAffiliation: { "@type": "Hospital", name: "Newmi Care" },
+      address: { "@type": "PostalAddress", addressLocality: "Gurugram", addressRegion: "Haryana", addressCountry: "IN" },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Physician",
+      name: "Dr. Anita Rao",
+      medicalSpecialty: "IVF, IUI, Fertility, Egg Freezing, PCOS",
+      hospitalAffiliation: { "@type": "Hospital", name: "Newmi Care" },
+      address: { "@type": "PostalAddress", addressLocality: "Gurugram", addressRegion: "Haryana", addressCountry: "IN" },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Physician",
+      name: "Dr. Kavitha Menon",
+      medicalSpecialty: "PCOS, Hormonal Disorders, Thyroid, Menopause",
+      hospitalAffiliation: { "@type": "Hospital", name: "Newmi Care" },
+      address: { "@type": "PostalAddress", addressLocality: "Gurugram", addressRegion: "Haryana", addressCountry: "IN" },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Physician",
+      name: "Dr. Sneha Agarwal",
+      medicalSpecialty: "High-Risk Pregnancy, Fetal Anomaly, NIPT, Amniocentesis",
+      hospitalAffiliation: { "@type": "Hospital", name: "Newmi Care" },
+      address: { "@type": "PostalAddress", addressLocality: "Gurugram", addressRegion: "Haryana", addressCountry: "IN" },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Physician",
+      name: "Dr. Ritu Nair",
+      medicalSpecialty: "Cervical Cancer, Ovarian Cancer, Colposcopy, LEEP",
+      hospitalAffiliation: { "@type": "Hospital", name: "Newmi Care" },
+      address: { "@type": "PostalAddress", addressLocality: "Gurugram", addressRegion: "Haryana", addressCountry: "IN" },
     },
   ];
 

@@ -6,6 +6,7 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 export function AnimatedNumber({ value }: { value: string }) {
   const [display, setDisplay] = useState('0')
   const hasAnimated = useRef(false)
+  const ref = useRef<HTMLSpanElement>(null)
 
   const animate = useCallback((target: string) => {
     const prefix = target.match(/^[^0-9]*/)?.[0] || ''
@@ -30,14 +31,23 @@ export function AnimatedNumber({ value }: { value: string }) {
   }, [])
 
   useEffect(() => {
-    if (!hasAnimated.current) {
-      hasAnimated.current = true
-      const timer = setTimeout(() => animate(value), 100)
-      return () => clearTimeout(timer)
-    } else {
-      animate(value)
-    }
+    const el = ref.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated.current) {
+          hasAnimated.current = true
+          animate(value)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.3 }
+    )
+
+    observer.observe(el)
+    return () => observer.disconnect()
   }, [value, animate])
 
-  return <>{display}</>
+  return <span ref={ref}>{display}</span>
 }
