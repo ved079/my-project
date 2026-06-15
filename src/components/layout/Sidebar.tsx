@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import {
   LayoutDashboard, BarChart2, TrendingUp, Users, ArrowRightLeft,
   Target, Shield, DollarSign, MessageCircle, Calendar,
@@ -69,7 +70,7 @@ export function Sidebar({ active, onNavigate }: { active: Page; onNavigate: (p: 
   return (
     <aside className="dash-sidebar">
       <div className="dash-sidebar-logo">
-        <img src="/logo.svg" alt="Newmi Care" style={{ height: 28 }} />
+        <Image src="/logo.svg" alt="Newmi Care" width={100} height={28} style={{ height: 28, width: 'auto' }} />
         <div className="dash-sidebar-logo-label">Marketing OS</div>
       </div>
 

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Command } from 'lucide-react'
 import type { Page, DateRange, ToastType, ViewMode, RiyaTab } from '@/lib/types'
 import { useToastStore } from '@/store/toast-store'
 import { ToastContainer } from '@/components/shared/ToastContainer'
@@ -40,7 +39,6 @@ import { MyPerformancePage } from '@/components/riya/MyPerformancePage'
 import { MyActivityPage } from '@/components/riya/MyActivityPage'
 import { NotificationsPage } from '@/components/riya/NotificationsPage'
 import { NiviAssistantPage } from '@/components/riya/NiviAssistantPage'
-import { LandingPage } from '@/components/pages/LandingPage'
 
 function RiyaDashboard({ activeTab, onTabChange }: { activeTab: RiyaTab; onTabChange: (t: RiyaTab) => void }) {
   const [teamMemberId, setTeamMemberId] = useState('')
@@ -71,9 +69,11 @@ function RiyaDashboard({ activeTab, onTabChange }: { activeTab: RiyaTab; onTabCh
   )
 }
 
-export default function NewmiMarketingOS() {
+export default function DashboardPage() {
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('tab') === 'riya') return 'riya'
       const stored = localStorage.getItem('newmi-view') as ViewMode | null
       if (stored === 'admin' || stored === 'riya') return stored
     }
@@ -88,9 +88,16 @@ export default function NewmiMarketingOS() {
   const [riyaTab, setRiyaTab] = useState<RiyaTab>('command')
   const navToPage = useCallback((p: Page) => { window.scrollTo(0, 0); setActivePage(p) }, [])
   const navToTab = useCallback((t: RiyaTab) => { window.scrollTo(0, 0); setRiyaTab(t) }, [])
-  const switchView = useCallback((v: ViewMode) => { window.scrollTo(0, 0); setViewMode(v) }, [])
   const [cmdOpen, setCmdOpen] = useState(false)
   const toasts = useToastStore(s => s.toasts)
+  const switchView = useCallback((v: ViewMode) => {
+    if (v === 'landing') {
+      window.location.href = '/'
+      return
+    }
+    window.scrollTo(0, 0)
+    setViewMode(v)
+  }, [])
 
   useEffect(() => {
     localStorage.setItem('newmi-view', viewMode)
@@ -141,33 +148,27 @@ export default function NewmiMarketingOS() {
 
   return (
     <div className="app-root">
-      {viewMode === 'landing' ? (
-        <LandingPage onViewChange={switchView} />
-      ) : (
-        <>
-          <ToastContainer toasts={toasts} />
-          {viewMode === 'admin' && (
-            <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} onNavigate={p => { navToPage(p); setCmdOpen(false) }} onLeadSelect={lead => { navToPage('leads'); setCmdOpen(false) }} />
-          )}
-          <div className="dash-shell">
-            {viewMode === 'admin' ? (
-              <Sidebar active={activePage} onNavigate={navToPage} />
-            ) : (
-              <RiyaSidebar activeTab={riyaTab} onTabChange={navToTab} />
-            )}
-            <div className="dash-main">
-              {viewMode === 'admin' ? (
-                <Topbar active={activePage} dateRange={dateRange} onDateRangeChange={setDateRange} darkMode={darkMode} onToggleDark={() => setDarkMode(d => !d)} onOpenCmd={() => setCmdOpen(true)} addToast={addToast} viewMode={viewMode} onViewChange={switchView} />
-              ) : (
-                <RiyaTopbar activeTab={riyaTab} viewMode={viewMode} onViewChange={switchView} />
-              )}
-              <main className="dash-content" style={{ paddingBottom: viewMode === 'riya' ? '72px' : undefined }}>
-                {viewMode === 'admin' ? renderPage() : <RiyaDashboard activeTab={riyaTab} onTabChange={navToTab} />}
-              </main>
-            </div>
-          </div>
-        </>
+      <ToastContainer toasts={toasts} />
+      {viewMode === 'admin' && (
+        <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} onNavigate={p => { navToPage(p); setCmdOpen(false) }} onLeadSelect={lead => { navToPage('leads'); setCmdOpen(false) }} />
       )}
+      <div className="dash-shell">
+        {viewMode === 'admin' ? (
+          <Sidebar active={activePage} onNavigate={navToPage} />
+        ) : (
+          <RiyaSidebar activeTab={riyaTab} onTabChange={navToTab} />
+        )}
+        <div className="dash-main">
+          {viewMode === 'admin' ? (
+            <Topbar active={activePage} dateRange={dateRange} onDateRangeChange={setDateRange} darkMode={darkMode} onToggleDark={() => setDarkMode(d => !d)} onOpenCmd={() => setCmdOpen(true)} addToast={addToast} viewMode={viewMode} onViewChange={switchView} />
+          ) : (
+            <RiyaTopbar activeTab={riyaTab} viewMode={viewMode} onViewChange={switchView} />
+          )}
+          <main className="dash-content" style={{ paddingBottom: viewMode === 'riya' ? '72px' : undefined }}>
+            {viewMode === 'admin' ? renderPage() : <RiyaDashboard activeTab={riyaTab} onTabChange={navToTab} />}
+          </main>
+        </div>
+      </div>
     </div>
   )
 }

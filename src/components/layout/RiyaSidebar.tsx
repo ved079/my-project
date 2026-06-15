@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import {
   Home, ListTodo, Inbox, BarChart3, Clock, Bell, MessageSquare, Sparkles, Activity, Bot,
 } from 'lucide-react'
@@ -24,7 +25,7 @@ export function RiyaSidebar({ activeTab, onTabChange }: { activeTab: RiyaTab; on
   return (
     <aside className="dash-sidebar riya-sidebar">
       <div className="dash-sidebar-logo">
-        <img src="https://newmi.in/assets/newmi-care-Logo.svg" alt="Newmi Care" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+        <Image src="/logo.svg" alt="Newmi Care" width={100} height={28} style={{ height: 28, width: 'auto' }} />
         <div className="dash-sidebar-logo-label">Marketing Desk</div>
       </div>
       <nav className="dash-sidebar-nav">

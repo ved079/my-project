@@ -10,7 +10,6 @@ import {
   Calendar,   Instagram, Facebook, Linkedin, Twitter, MessageSquare, Lock, Search, Sparkles, Clock, ChevronLeft, ChevronRight,
 } from 'lucide-react'
 import { captureUTM, persistUTM } from '@/lib/utm'
-import type { ViewMode } from '@/lib/types'
 import { SPECIALISTS } from '@/lib/nivi/specialists'
 import {
   Accordion, AccordionItem, AccordionTrigger, AccordionContent,
@@ -212,7 +211,7 @@ function renderStars(rating: number) {
   return stars
 }
 
-export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => void }) {
+export function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [carouselIdx, setCarouselIdx] = useState(2)
   const [carouselPaused, setCarouselPaused] = useState(false)
@@ -254,7 +253,7 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
   const [symptomCheckOpen, setSymptomCheckOpen] = useState(false)
   const [quizOpen, setQuizOpen] = useState(false)
   const [heroTagline, setHeroTagline] = useState("India's Most Trusted Women's Health Platform")
-  const [heroHeading, setHeroHeading] = useState('You deserve answers,\nnot guesswork.')
+  const [heroHeading, setHeroHeading] = useState('Newmi Care — India\'s Trusted Women\'s Health Platform')
   const [heroSubtext, setHeroSubtext] = useState("India's most trusted women's health platform — from puberty to menopause, we're with you at every stage.")
   const [tickerMessages] = useState([
     'Priya from Gurugram just booked a fertility consult',
@@ -716,6 +715,9 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
         )}
       </Dialog>
 
+      <a href="#main-content" className="skip-link" style={{ position: 'absolute', left: -9999, width: 1, height: 1, overflow: 'hidden' }}
+        onFocus={(e) => { e.currentTarget.style.position = 'fixed'; e.currentTarget.style.top = '8px'; e.currentTarget.style.left = '8px'; e.currentTarget.style.width = 'auto'; e.currentTarget.style.height = 'auto'; e.currentTarget.style.background = '#BB2026'; e.currentTarget.style.color = 'white'; e.currentTarget.style.padding = '12px 24px'; e.currentTarget.style.zIndex = '9999'; e.currentTarget.style.borderRadius = '8px'; e.currentTarget.style.textDecoration = 'none'; e.currentTarget.style.fontWeight = '600' }}
+        onBlur={(e) => { e.currentTarget.style.position = 'absolute'; e.currentTarget.style.left = '-9999px'; e.currentTarget.style.width = '1px'; e.currentTarget.style.height = '1px' }}>Skip to main content</a>
       <header className="lp-navbar" role="banner">
         <div className="lp-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 64 }}>
           <Image src="/images/newmi/newmi-logo.svg" alt="Newmi Care logo" width={100} height={28} priority style={{ height: 28, width: 'auto' }} />
@@ -725,8 +727,8 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
             ))}
           </nav>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <button onClick={() => onViewChange('admin')} style={{ background: 'none', border: 'none', color: '#6B7280', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', padding: '4px 8px' }}>Admin</button>
-            <button onClick={() => onViewChange('riya')} style={{ background: 'none', border: 'none', color: '#6B7280', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', padding: '4px 8px' }}>Riya</button>
+            <button onClick={() => window.location.href = '/dashboard'} style={{ background: 'none', border: 'none', color: '#6B7280', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', padding: '4px 8px' }}>Admin</button>
+            <button onClick={() => window.location.href = '/dashboard?tab=riya'} style={{ background: 'none', border: 'none', color: '#6B7280', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', padding: '4px 8px' }}>Riya</button>
             <button className="lp-cta-primary" onClick={() => openBooking()} style={{ padding: '8px 20px', fontSize: 14 }}>Book Consultation</button>
             <button onClick={() => setMenuOpen(!menuOpen)} style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer', color: '#111827' }} className="lp-mobile-menu-btn" aria-label={menuOpen ? 'Close menu' : 'Open menu'}>
               {menuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -742,7 +744,7 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
         )}
       </header>
 
-      <main>
+      <main id="main-content">
         <section className="lp-hero" id="hero" aria-labelledby="hero-title">
           <div className="lp-container" style={{ paddingTop: 80, paddingBottom: 80, textAlign: 'center', position: 'relative' }}>
             <span style={{ background: '#FEF2F2', color: '#BB2026', border: '1px solid #FBCFE8', borderRadius: 9999, fontSize: '0.8rem', fontWeight: 600, padding: '4px 14px', display: 'inline-block', letterSpacing: '0.02em' }}>
@@ -1112,6 +1114,19 @@ export function LandingPage({ onViewChange }: { onViewChange: (v: ViewMode) => v
                   </div>
                 </article>
               ))}
+            </div>
+            <div style={{ marginTop: 32, borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3509.012345678901!2d77.012345!3d28.012345!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjjCsDAwJzQ0LjQiTiA3N8KwMDAnNDQuNCJF!5e0!3m2!1sen!2sin!4v1"
+                width="100%"
+                height="320"
+                style={{ border: 0, display: 'block' }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Newmi Care clinic locations in Gurugram"
+                aria-label="Map showing Newmi Care clinic locations in Gurugram"
+              />
             </div>
           </div>
         </section>
