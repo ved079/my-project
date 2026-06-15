@@ -157,7 +157,7 @@ export function SymptomCheckerWidget({ open, onOpenChange, onBook }: {
                   ))}
                 </div>
               )}
-              <p style={{ marginTop: 12, fontSize: '0.72rem', color: '#9CA3AF', fontStyle: 'italic' }}>{result.disclaimer}</p>
+              <p style={{ marginTop: 12, fontSize: '0.72rem', color: '#6B7280', fontStyle: 'italic' }}>{result.disclaimer}</p>
               <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
                 <button onClick={() => { onBook(result.recommendedCarePlan); onOpenChange(false) }}
                   className="lp-cta-primary" style={{ flex: 1, padding: '12px', fontSize: '0.9rem', borderRadius: 10 }}>

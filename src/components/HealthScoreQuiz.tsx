@@ -70,7 +70,7 @@ export function HealthScoreQuiz({ open, onOpenChange, onBook }: {
                 </button>
               ))}
             </div>
-            <p style={{ marginTop: 14, fontSize: '0.75rem', color: '#9CA3AF', textAlign: 'center' }}>{step + 1} of {QUIZ.length}</p>
+            <p style={{ marginTop: 14, fontSize: '0.75rem', color: '#6B7280', textAlign: 'center' }}>{step + 1} of {QUIZ.length}</p>
           </>
         ) : (
           <div style={{ textAlign: 'center', padding: '8px 0' }}>
@@ -78,7 +78,7 @@ export function HealthScoreQuiz({ open, onOpenChange, onBook }: {
               <HeartPulse size={32} color={result.color} />
             </div>
             <DialogTitle style={{ fontSize: '1.15rem' }}>Your HealthScore</DialogTitle>
-            <div style={{ marginTop: 12, fontSize: '2.5rem', fontWeight: 800, color: result.color }}>{result.score}<span style={{ fontSize: '1rem', fontWeight: 400, color: '#9CA3AF' }}>%</span></div>
+            <div style={{ marginTop: 12, fontSize: '2.5rem', fontWeight: 800, color: result.color }}>{result.score}<span style={{ fontSize: '1rem', fontWeight: 400, color: '#6B7280' }}>%</span></div>
             <div style={{ marginTop: 4, fontSize: '0.9rem', fontWeight: 600, color: result.color }}>{result.label}</div>
             <p style={{ marginTop: 12, fontSize: '0.85rem', color: '#6B7280', lineHeight: 1.5, maxWidth: 340, margin: '12px auto 0' }}>{result.recommendation}</p>
             <div style={{ marginTop: 20, display: 'flex', gap: 8, justifyContent: 'center' }}>

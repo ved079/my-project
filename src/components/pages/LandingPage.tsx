@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import {
   CheckCircle, Shield, Star, ShieldCheck, Heart, Smartphone, TrendingUp,
@@ -11,18 +11,19 @@ import {
 } from 'lucide-react'
 import { captureUTM, persistUTM } from '@/lib/utm'
 import { SPECIALISTS } from '@/lib/nivi/specialists'
-import {
-  Accordion, AccordionItem, AccordionTrigger, AccordionContent,
-} from '@/components/ui/accordion'
-import { BookingModal } from '@/components/BookingModal'
-import { SymptomCheckerWidget } from '@/components/SymptomCheckerWidget'
-import { HealthScoreQuiz } from '@/components/HealthScoreQuiz'
+import dynamic from 'next/dynamic'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger,
 } from '@/components/ui/dialog'
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from '@/components/ui/tooltip'
+import ScrollReveal, { StaggerContainer, StaggerItem } from '@/components/shared/ScrollReveal'
+
+const BookingModal = dynamic(() => import('@/components/BookingModal').then(m => m.BookingModal), { ssr: false })
+const SymptomCheckerWidget = dynamic(() => import('@/components/SymptomCheckerWidget').then(m => m.SymptomCheckerWidget), { ssr: false })
+const HealthScoreQuiz = dynamic(() => import('@/components/HealthScoreQuiz').then(m => m.HealthScoreQuiz), { ssr: false })
+const FaqSection = dynamic(() => import('@/components/pages/FaqSection'), { ssr: false })
 
 const NAV_LINKS = [
   { id: 'conditions', label: 'What We Treat' },
@@ -45,17 +46,6 @@ function openWhatsApp(msg?: string) {
     : WHATSAPP_URL
   window.open(url, '_blank', 'noopener,noreferrer')
 }
-
-const FAQ_ITEMS = [
-  { q: "What conditions does Newmi Care treat?", a: "Newmi Care specializes in women's health across every life stage — from puberty to menopause. Our care plans cover PCOS/PCOD, fertility issues, pregnancy and postpartum care, mental health, weight management, menopause, cancer support, pediatric care, and sexual health. Each plan is designed by specialist gynecologists, endocrinologists, and therapists." },
-  { q: "Do I need a referral to book a consultation?", a: "No referral is needed. You can book a consultation directly through our website, app, or by calling +91-8929345355. Our team will match you with the right specialist based on your concern." },
-  { q: "Are online consultations available?", a: "Yes, Newmi offers secure video consultations with qualified specialists across women's health. You can book a digital consultation through the Newmi app or website, available Monday to Saturday, 9 AM to 9 PM. All consultations are private and HIPAA-compliant." },
-  { q: "What are Newmi's clinic locations?", a: "Newmi currently operates clinics in Gurugram — at Sector 69 (Spaze Corporate Park) and Sector 57 (Bestech Central Square Mall). Both clinics offer consultation, pathology, radiology, medicines, vaccination, wellness, and physiotherapy services. We are expanding to more cities soon." },
-  { q: "Is my health information kept private?", a: "Absolutely. Newmi Care is HIPAA, GDPR, and ISO compliant. Your health data is encrypted, and we follow the highest standards of data privacy. We never share your information without your explicit consent." },
-  { q: "How much does a consultation cost?", a: "Consultation fees vary by specialist and condition. Our care plans are designed to be affordable, and we offer both in-clinic and digital consultation options. Contact us at +91-8929345355 or care@newmi.in for specific pricing." },
-  { q: "Can I use Newmi for pregnancy care from the beginning?", a: "Yes, Newmi provides end-to-end prenatal care from the first trimester through delivery and postpartum. Our pregnancy care plan includes regular check-ups, ultrasound scheduling, nutrition planning, high-risk monitoring, prenatal yoga, and emergency support." },
-  { q: "Does Newmi accept insurance?", a: "Newmi works with employers and insurance providers through our Smart OPD program to make outpatient care accessible and affordable. Contact our team to check if your insurance plan covers Newmi services." },
-]
 
 const TESTIMONIALS = [
   { name: 'Neha Gupta', location: 'Gurugram', text: 'Thank you doctor for your support! Very caring and polite.', rating: 4.7, condition: 'PCOS Treatment' },
@@ -551,7 +541,7 @@ export function LandingPage() {
                   </button>
                 ))}
               </div>
-              <p style={{ marginTop: 16, fontSize: '0.8rem', color: '#9CA3AF', textAlign: 'center' }}>Step {triageStep + 1} of 3</p>
+              <p style={{ marginTop: 16, fontSize: '0.8rem', color: '#6B7280', textAlign: 'center' }}>Step {triageStep + 1} of 3</p>
             </>
           ) : (
             <div style={{ textAlign: 'center', padding: '16px 0' }}>
@@ -596,7 +586,7 @@ export function LandingPage() {
             Book Free Consultation
           </button>
           <button onClick={() => setExitOpen(false)}
-            style={{ marginTop: 10, background: 'none', border: 'none', color: '#9CA3AF', fontSize: '0.82rem', cursor: 'pointer', fontFamily: 'inherit' }}>
+            style={{ marginTop: 10, background: 'none', border: 'none', color: '#6B7280', fontSize: '0.82rem', cursor: 'pointer', fontFamily: 'inherit' }}>
             No thanks
           </button>
         </DialogContent>
@@ -670,7 +660,7 @@ export function LandingPage() {
         )}
       </header>
 
-      <main id="main-content">
+      <main id="main-content" style={{ position: 'relative' }}>
         <section className="lp-hero" id="hero" aria-labelledby="hero-title">
           <div className="lp-container" style={{ paddingTop: 80, paddingBottom: 80, textAlign: 'center', position: 'relative' }}>
             <span style={{ background: '#FEF2F2', color: '#BB2026', border: '1px solid #FBCFE8', borderRadius: 9999, fontSize: '0.8rem', fontWeight: 600, padding: '4px 14px', display: 'inline-block', letterSpacing: '0.02em' }}>
@@ -698,14 +688,14 @@ export function LandingPage() {
                   {availabilityText}
                 </span>
               </div>
-              <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, flexWrap: 'wrap', fontSize: '0.78rem', color: '#9CA3AF' }}>
+              <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, flexWrap: 'wrap', fontSize: '0.78rem', color: '#6B7280' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>{[0,1,2,3,4].map(i => <Star key={i} size={11} fill="#D97706" color="#D97706" />)}<strong style={{ color: '#374151', marginLeft: 2 }}>4.9+</strong> App Rating</span>
                 <span style={{ width: 1, height: 10, background: '#D1D5DB', margin: '0 8px' }} />
-                <Shield size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3, color: '#9CA3AF' }} /> HIPAA Compliant
+                <Shield size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3, color: '#6B7280' }} /> HIPAA Compliant
                 <span style={{ width: 1, height: 10, background: '#D1D5DB', margin: '0 8px' }} />
                 10,000+ women helped
               </div>
-              <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: '0.78rem', color: '#9CA3AF', borderTop: '1px solid #F3F4F6', paddingTop: 10 }}>
+              <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: '0.78rem', color: '#6B7280', borderTop: '1px solid #F3F4F6', paddingTop: 10 }}>
                 <Activity size={12} color="#22C55E" style={{ flexShrink: 0 }} />
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tickerMessages[tickerIdx]}</span>
               </div>
@@ -714,29 +704,31 @@ export function LandingPage() {
         </section>
 
         {/* How Newmi Supports You */}
-        <section className="lp-section" id="how-we-help" aria-labelledby="help-title" style={{ background: '#FFFFFF', borderBottom: '1px solid #F3F4F6' }}>
+        <ScrollReveal as="section" className="lp-section" id="how-we-help" aria-labelledby="help-title" style={{ background: '#FFFFFF', borderBottom: '1px solid #F3F4F6' }}>
           <div className="lp-container">
             <h2 id="help-title" className="lp-title">How Newmi Supports You</h2>
             <p className="lp-subtitle">Three ways to get the care you need, when you need it.</p>
-            <div className="lp-grid-3">
+            <StaggerContainer className="lp-grid-3">
               {[
                 { img: '/images/newmi/support-clinic.png', title: 'Visit Clinics', desc: 'In-Person Care, Near You. Get personalized support at our women and child clinics in Gurugram.', cta: 'Find a Clinic', href: '#find-clinic' },
                 { img: '/images/newmi/support-digital.png', title: 'Digital Consultations', desc: 'Experts On Call, Always. Instant access to top specialists from puberty to menopause.', cta: 'Consult Online', href: 'https://clinic.newmi.in' },
                 { img: '/images/newmi/support-smartopd.png', title: 'Smart OPD', desc: 'Preventive & Proactive care for employers, insurers, and government health programs.', cta: 'Learn More', href: '#conditions' },
               ].map((item) => (
-                <article key={item.title} style={{ background: '#FFFFFF', borderRadius: 16, padding: 28, border: '1px solid #F3F4F6', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                  <Image src={item.img} alt={item.title} width={64} height={64} style={{ objectFit: 'contain', margin: '0 auto 16px' }} />
-                  <h3 style={{ fontWeight: 700, color: '#111827', fontSize: '1rem' }}>{item.title}</h3>
-                  <p style={{ color: '#6B7280', fontSize: '0.85rem', lineHeight: 1.5, marginTop: 8 }}>{item.desc}</p>
-                  <a href={item.href} onClick={(e) => { if (item.href.startsWith('#')) { e.preventDefault(); scrollTo(item.href.slice(1)) } }}
-                    style={{ display: 'inline-block', marginTop: 16, padding: '8px 20px', background: '#BB2026', color: 'white', fontWeight: 600, fontSize: '0.82rem', borderRadius: 8, textDecoration: 'none' }}>
-                    {item.cta}
-                  </a>
-                </article>
+                <StaggerItem key={item.title}>
+                  <article style={{ background: '#FFFFFF', borderRadius: 16, padding: 28, border: '1px solid #F3F4F6', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                    <Image src={item.img} alt={item.title} width={64} height={64} style={{ objectFit: 'contain', margin: '0 auto 16px' }} />
+                    <h3 style={{ fontWeight: 700, color: '#111827', fontSize: '1rem' }}>{item.title}</h3>
+                    <p style={{ color: '#6B7280', fontSize: '0.85rem', lineHeight: 1.5, marginTop: 8 }}>{item.desc}</p>
+                    <a href={item.href} onClick={(e) => { if (item.href.startsWith('#')) { e.preventDefault(); scrollTo(item.href.slice(1)) } }}
+                      style={{ display: 'inline-block', marginTop: 16, padding: '8px 20px', background: '#BB2026', color: 'white', fontWeight: 600, fontSize: '0.82rem', borderRadius: 8, textDecoration: 'none' }}>
+                      {item.cta}
+                    </a>
+                  </article>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerContainer>
           </div>
-        </section>
+        </ScrollReveal>
 
 
 
@@ -748,79 +740,83 @@ export function LandingPage() {
           </div>
         )}
 
-        <section className="lp-section" id="conditions" aria-labelledby="conditions-title" style={{ background: '#F9FAFB' }}>
+        <ScrollReveal as="section" className="lp-section" id="conditions" aria-labelledby="conditions-title" style={{ background: '#F9FAFB' }}>
           <div className="lp-container">
             <h2 id="conditions-title" className="lp-title">What brings you here?</h2>
             <p className="lp-subtitle">Tell us what you&apos;re going through — we&apos;ll guide you to the right care.</p>
-            <div className="lp-grid-3">
+            <StaggerContainer className="lp-grid-3">
               {CONDITION_PATHWAYS.map((p) => {
                 const PIcon = p.icon
                 const isExpanded = expandedPathway === p.id
                 const doc = SPECIALISTS[p.docIdx]
                 return (
-                  <article key={p.id} className="lp-card" style={{ padding: 24, cursor: 'pointer', border: isExpanded ? '2px solid #BB2026' : '1px solid #E5E7EB', transition: 'border 0.2s ease, box-shadow 0.2s ease' }}
-                    onClick={() => setExpandedPathway(isExpanded ? null : p.id)}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <div className="lp-icon-circle" style={{ width: 44, height: 44 }}><PIcon size={22} /></div>
-                      <div>
-                        <h3 style={{ fontWeight: 600, color: '#111827', fontSize: '1rem' }}>{p.label}</h3>
-                        <p style={{ color: '#6B7280', fontSize: '0.8rem', marginTop: 2 }}>{p.sub}</p>
+                  <StaggerItem key={p.id}>
+                    <article className="lp-card" style={{ padding: 24, cursor: 'pointer', border: isExpanded ? '2px solid #BB2026' : '1px solid #E5E7EB', transition: 'border 0.2s ease, box-shadow 0.2s ease' }}
+                      onClick={() => setExpandedPathway(isExpanded ? null : p.id)}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div className="lp-icon-circle" style={{ width: 44, height: 44 }}><PIcon size={22} /></div>
+                        <div>
+                          <h3 style={{ fontWeight: 600, color: '#111827', fontSize: '1rem' }}>{p.label}</h3>
+                          <p style={{ color: '#6B7280', fontSize: '0.8rem', marginTop: 2 }}>{p.sub}</p>
+                        </div>
                       </div>
-                    </div>
-                    {isExpanded && (
-                      <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #E5E7EB' }}>
-                        <p style={{ fontSize: '0.82rem', fontWeight: 600, color: '#BB2026', marginBottom: 6 }}>Symptoms we treat:</p>
-                        <ul style={{ fontSize: '0.8rem', color: '#374151', paddingLeft: 16, marginBottom: 10, lineHeight: 1.7 }}>
-                          {p.symptoms.map(s => <li key={s}>{s}</li>)}
-                        </ul>
-                        <p style={{ fontSize: '0.82rem', fontWeight: 600, color: '#BB2026', marginBottom: 4 }}>What to expect:</p>
-                        <p style={{ fontSize: '0.8rem', color: '#374151', marginBottom: 12 }}>{p.expectation}</p>
-                        {doc && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8rem', color: '#6B7280', marginBottom: 12, padding: 8, background: '#F9FAFB', borderRadius: 8 }}>
-                            <Image src={DOCTOR_PORTRAITS[p.docIdx]} alt={`${doc.name} — ${doc.title} at Newmi Care`} width={32} height={32} className="rounded-full ring-2 ring-white shadow-sm" style={{ objectFit: 'cover', borderRadius: '50%' }} />
-                            <div>
-                              <span style={{ fontWeight: 600 }}>{doc.name}</span> — {doc.experience}
+                      {isExpanded && (
+                        <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #E5E7EB' }}>
+                          <p style={{ fontSize: '0.82rem', fontWeight: 600, color: '#BB2026', marginBottom: 6 }}>Symptoms we treat:</p>
+                          <ul style={{ fontSize: '0.8rem', color: '#374151', paddingLeft: 16, marginBottom: 10, lineHeight: 1.7 }}>
+                            {p.symptoms.map(s => <li key={s}>{s}</li>)}
+                          </ul>
+                          <p style={{ fontSize: '0.82rem', fontWeight: 600, color: '#BB2026', marginBottom: 4 }}>What to expect:</p>
+                          <p style={{ fontSize: '0.8rem', color: '#374151', marginBottom: 12 }}>{p.expectation}</p>
+                          {doc && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8rem', color: '#6B7280', marginBottom: 12, padding: 8, background: '#F9FAFB', borderRadius: 8 }}>
+                              <Image src={DOCTOR_PORTRAITS[p.docIdx]} alt={`${doc.name} — ${doc.title} at Newmi Care`} width={32} height={32} className="rounded-full ring-2 ring-white shadow-sm" style={{ objectFit: 'cover', borderRadius: '50%' }} />
+                              <div>
+                                <span style={{ fontWeight: 600 }}>{doc.name}</span> — {doc.experience}
+                              </div>
                             </div>
-                          </div>
-                        )}
-                        <button className="lp-cta-primary" style={{ width: '100%', padding: '10px 0', fontSize: '0.85rem', borderRadius: 8, border: 'none' }}
-                          onClick={(e) => { e.stopPropagation(); openBooking(p.condition) }}>
-                          Book a Consultation for {p.condition}
-                        </button>
-                      </div>
-                    )}
-                  </article>
+                          )}
+                          <button className="lp-cta-primary" style={{ width: '100%', padding: '10px 0', fontSize: '0.85rem', borderRadius: 8, border: 'none' }}
+                            onClick={(e) => { e.stopPropagation(); openBooking(p.condition) }}>
+                            Book a Consultation for {p.condition}
+                          </button>
+                        </div>
+                      )}
+                    </article>
+                  </StaggerItem>
                 )
               })}
-            </div>
+            </StaggerContainer>
           </div>
-        </section>
+        </ScrollReveal>
 
-        <section className="lp-section" id="why-newmi" aria-labelledby="why-title">
+        <ScrollReveal as="section" className="lp-section" id="why-newmi" aria-labelledby="why-title">
           <div className="lp-container">
             <h2 id="why-title" className="lp-title">Why Choose Newmi Care?</h2>
             <p className="lp-subtitle">We provide compassionate, expert care tailored to every woman&apos;s health journey.</p>
             <div className="lp-grid-2" style={{ alignItems: 'center', gap: 40 }}>
-              <div>
+              <ScrollReveal variant="slideLeft" className="w-full">
                 <Image src="/images/newmi/why-section.png" alt="Newmi Care — Women's health clinic" width={540} height={400} priority className="rounded-xl shadow-lg" style={{ objectFit: 'cover', borderRadius: 16, width: '100%', height: 'auto' }} />
-              </div>
-              <div className="lp-grid-2" style={{ gap: 16 }}>
+              </ScrollReveal>
+              <StaggerContainer className="lp-grid-2" style={{ gap: 16 }}>
                 {WHY_NEWMI.map((item) => {
                   const Icon = item.icon
                   return (
-                    <article key={item.title} className="lp-card" style={{ padding: 20 }}>
-                      <div className="lp-icon-circle"><Icon size={22} /></div>
-                      <h3 style={{ marginTop: 10, fontWeight: 600, color: '#111827', fontSize: '0.9rem' }}>{item.title}</h3>
-                      <p style={{ marginTop: 4, color: '#6B7280', fontSize: '0.82rem', lineHeight: 1.5 }}>{item.desc}</p>
-                    </article>
+                    <StaggerItem key={item.title}>
+                      <article className="lp-card" style={{ padding: 20 }}>
+                        <div className="lp-icon-circle"><Icon size={22} /></div>
+                        <h3 style={{ marginTop: 10, fontWeight: 600, color: '#111827', fontSize: '0.9rem' }}>{item.title}</h3>
+                        <p style={{ marginTop: 4, color: '#6B7280', fontSize: '0.82rem', lineHeight: 1.5 }}>{item.desc}</p>
+                      </article>
+                    </StaggerItem>
                   )
                 })}
-              </div>
+              </StaggerContainer>
             </div>
           </div>
-        </section>
+        </ScrollReveal>
 
-        <section className="lp-section" id="care-plans" aria-labelledby="care-title">
+        <ScrollReveal as="section" className="lp-section" id="care-plans" aria-labelledby="care-title">
           <div className="lp-container">
             <h2 id="care-title" className="lp-title">Care Plans</h2>
             <p className="lp-subtitle">Personalised care plans designed for every stage of your health journey.</p>
@@ -853,15 +849,16 @@ export function LandingPage() {
               </div>
             </div>
           </div>
-        </section>
+        </ScrollReveal>
 
-        <section className="lp-section lp-section-alt" id="doctors" aria-labelledby="doctors-title">
+        <ScrollReveal as="section" className="lp-section lp-section-alt" id="doctors" aria-labelledby="doctors-title">
           <div className="lp-container">
             <h2 id="doctors-title" className="lp-title">Our Specialists</h2>
             <p className="lp-subtitle">Experienced and compassionate doctors dedicated to your well-being.</p>
-            <div className="lp-grid-3">
+            <StaggerContainer className="lp-grid-3">
               {SPECIALISTS.map((doc, idx) => (
-                <article key={doc.id} style={{ background: '#FFFFFF', borderRadius: 16, padding: 24, border: '1px solid #F3F4F6', boxShadow: '0 1px 3px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column' }}>
+                <StaggerItem key={doc.id}>
+                  <article style={{ background: '#FFFFFF', borderRadius: 16, padding: 24, border: '1px solid #F3F4F6', boxShadow: '0 1px 3px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                     <Image src={DOCTOR_PORTRAITS[idx]} alt={`${doc.name} — ${doc.title} at Newmi Care`} width={96} height={96} priority={idx < 2}
                       style={{ objectFit: 'cover', borderRadius: '50%', width: 96, height: 96, border: '2px solid #F3F4F6' }} />
@@ -888,27 +885,30 @@ export function LandingPage() {
                     onClick={() => openBooking(doc.specialization[0])}>
                     Book with {doc.name.split(' ').slice(-1)[0]}
                   </button>
-                </article>
+                  </article>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerContainer>
           </div>
-        </section>
+        </ScrollReveal>
 
-        <section className="lp-section" id="live-stats" aria-labelledby="stats-title" style={{ background: '#FFFFFF', borderBottom: '1px solid #F3F4F6' }}>
+        <ScrollReveal as="section" className="lp-section" id="live-stats" aria-labelledby="stats-title" style={{ background: '#FFFFFF', borderBottom: '1px solid #F3F4F6' }}>
           <div className="lp-container" style={{ textAlign: 'center' }}>
             <h2 id="stats-title" style={{ fontSize: '1.8rem', fontWeight: 700, color: '#111827' }}>Trusted by Thousands of Women</h2>
             <p style={{ color: '#6B7280', marginTop: 8, fontSize: '0.9rem' }}>Real outcomes from real women across India.</p>
-            <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 20 }}>
+            <StaggerContainer style={{ marginTop: 32, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 20 }}>
               {LIVE_STATS.map((stat, i) => (
-                <div key={stat.label} style={{ background: '#F9FAFB', borderRadius: 16, padding: '28px 16px', border: '1px solid #F3F4F6' }}>
+                <StaggerItem key={stat.label}>
+                  <div style={{ background: '#F9FAFB', borderRadius: 16, padding: '28px 16px', border: '1px solid #F3F4F6' }}>
                   <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#111827' }}>
                     {stat.format(animatedStats[i] || 0)}
-                    <span style={{ fontSize: '1rem', fontWeight: 400, color: '#9CA3AF' }}>{stat.suffix}</span>
+                    <span style={{ fontSize: '1rem', fontWeight: 400, color: '#6B7280' }}>{stat.suffix}</span>
                   </div>
                   <div style={{ fontSize: '0.85rem', color: '#6B7280', marginTop: 4 }}>{stat.label}</div>
                 </div>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerContainer>
             <div style={{ marginTop: 36, paddingTop: 28, borderTop: '1px solid #E5E7EB' }}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 28, justifyContent: 'center', alignItems: 'center' }}>
                 {TRUST_BADGES.map((badge) => {
@@ -922,16 +922,16 @@ export function LandingPage() {
                   const BIcon = badge.icon!
                   return (
                     <div key={badge.label} style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#6B7280', fontSize: '0.82rem', fontWeight: 500 }}>
-                      <BIcon size={16} color="#9CA3AF" /> {badge.label}
+                      <BIcon size={16} color="#6B7280" /> {badge.label}
                     </div>
                   )
                 })}
               </div>
             </div>
           </div>
-        </section>
+        </ScrollReveal>
 
-        <section className="lp-section" id="app" aria-labelledby="app-title" style={{ background: '#FFFFFF', borderBottom: '1px solid #F3F4F6' }}>
+        <ScrollReveal as="section" className="lp-section" id="app" aria-labelledby="app-title" style={{ background: '#FFFFFF', borderBottom: '1px solid #F3F4F6' }}>
           <div className="lp-container">
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
               <h2 id="app-title" style={{ fontSize: '1.6rem', fontWeight: 700, color: '#111827', marginBottom: 8 }}>Your Health in Your Pocket</h2>
@@ -952,33 +952,36 @@ export function LandingPage() {
                   </a>
                 </div>
               </div>
-              <div style={{ display: 'grid', gap: 16 }}>
+              <StaggerContainer style={{ display: 'grid', gap: 16 }}>
                 {APP_FEATURES.map((f) => {
                   const FIcon = f.icon
                   return (
-                    <div key={f.title} style={{ display: 'flex', gap: 14, alignItems: 'flex-start', padding: '14px 16px', background: '#F9FAFB', borderRadius: 12, border: '1px solid #F3F4F6' }}>
+                    <StaggerItem key={f.title}>
+                      <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', padding: '14px 16px', background: '#F9FAFB', borderRadius: 12, border: '1px solid #F3F4F6' }}>
                       <div style={{ width: 40, height: 40, borderRadius: 10, background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#BB2026' }}><FIcon size={20} /></div>
                       <div>
                         <h3 style={{ fontWeight: 600, color: '#111827', fontSize: '0.88rem' }}>{f.title}</h3>
                         <p style={{ color: '#6B7280', fontSize: '0.8rem', lineHeight: 1.5, marginTop: 2 }}>{f.desc}</p>
                       </div>
                     </div>
+                  </StaggerItem>
                   )
                 })}
-              </div>
+              </StaggerContainer>
             </div>
           </div>
-        </section>
+        </ScrollReveal>
 
-        <section className="lp-section lp-section-alt" id="essentials" aria-labelledby="essentials-title">
+        <ScrollReveal as="section" className="lp-section lp-section-alt" id="essentials" aria-labelledby="essentials-title">
           <div className="lp-container">
             <h2 id="essentials-title" className="lp-title">Care Essentials</h2>
             <p className="lp-subtitle">Everything you need to manage your health journey.</p>
-            <div className="lp-grid-6">
+            <StaggerContainer className="lp-grid-6">
               {CARE_ESSENTIALS.map((item) => {
                 const Icon = item.icon
                 return (
-                  <TooltipProvider key={item.title}>
+                  <StaggerItem key={item.title}>
+                  <TooltipProvider>
                     <article className="lp-card" style={{ padding: 20, textAlign: 'center' }}>
                       <Image src={item.img} alt={`${item.title} at Newmi Care`} width={40} height={40} className="mx-auto" style={{ objectFit: 'contain' }} />
                       <h3 style={{ marginTop: 10, fontWeight: 600, color: '#111827', fontSize: '0.9rem' }}>{item.title}</h3>
@@ -994,19 +997,21 @@ export function LandingPage() {
                       </Tooltip>
                     </article>
                   </TooltipProvider>
+                  </StaggerItem>
                 )
               })}
-            </div>
+            </StaggerContainer>
           </div>
-        </section>
+        </ScrollReveal>
 
-        <section className="lp-section" id="locations" aria-labelledby="locations-title">
+        <ScrollReveal as="section" className="lp-section" id="locations" aria-labelledby="locations-title">
           <div className="lp-container">
             <h2 id="locations-title" className="lp-title">Find A Clinic Near You</h2>
             <p className="lp-subtitle">Safe Space for Women and Child&apos;s health. Compassionate Care, Without Judgment.</p>
-            <div className="lp-grid-2">
+            <StaggerContainer className="lp-grid-2">
               {LOCATIONS.map((loc) => (
-                <article key={loc.name} className="lp-card" style={{ overflow: 'hidden' }}>
+                <StaggerItem key={loc.name}>
+                  <article className="lp-card" style={{ overflow: 'hidden' }}>
                   <Image src={loc.img} alt={`Newmi Care clinic at ${loc.name}`} width={540} height={200} className="w-full" style={{ objectFit: 'cover', width: '100%', height: 200 }} loading="lazy" />
                   <div style={{ padding: 20, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                     <div className="lp-icon-circle" style={{ width: 36, height: 36, flexShrink: 0 }}><MapPin size={18} /></div>
@@ -1018,8 +1023,9 @@ export function LandingPage() {
                     </div>
                   </div>
                 </article>
+              </StaggerItem>
               ))}
-            </div>
+            </StaggerContainer>
             <div style={{ marginTop: 32, borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3509.012345678901!2d77.012345!3d28.012345!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjjCsDAwJzQ0LjQiTiA3N8KwMDAnNDQuNCJF!5e0!3m2!1sen!2sin!4v1"
@@ -1034,9 +1040,9 @@ export function LandingPage() {
               />
             </div>
           </div>
-        </section>
+        </ScrollReveal>
 
-        <section className="lp-section lp-section-alt" id="testimonials" aria-labelledby="testimonials-title">
+        <ScrollReveal as="section" className="lp-section lp-section-alt" id="testimonials" aria-labelledby="testimonials-title">
           <div className="lp-container" style={{ textAlign: 'center' }}>
             <h2 id="testimonials-title" className="lp-title">Patient Stories</h2>
             <p className="lp-subtitle">Real experiences from women who trust Newmi Care.</p>
@@ -1058,7 +1064,7 @@ export function LandingPage() {
                     </div>
                     <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
                       {TESTIMONIALS.map((_, i) => (
-                        <button key={i} onClick={() => setTestimonialIdx(i)}
+                        <button key={i} onClick={() => setTestimonialIdx(i)} aria-label={`Go to testimonial ${i + 1}`}
                           style={{ width: i === testimonialIdx ? 20 : 6, height: 6, borderRadius: 9999, border: 'none', background: i === testimonialIdx ? '#BB2026' : '#D1D5DB', cursor: 'pointer', padding: 0, transition: 'all 0.2s ease' }} />
                       ))}
                     </div>
@@ -1073,46 +1079,35 @@ export function LandingPage() {
               <span style={{ color: '#6B7280', fontSize: '0.78rem' }}><strong style={{ color: '#374151' }}>4.9+</strong> App Rating</span>
             </div>
           </div>
-        </section>
+        </ScrollReveal>
 
-        <section className="lp-section" id="founders" aria-labelledby="founders-title" style={{ background: '#F9FAFB' }}>
+        <ScrollReveal as="section" className="lp-section" id="founders" aria-labelledby="founders-title" style={{ background: '#F9FAFB' }}>
           <div className="lp-container" style={{ textAlign: 'center' }}>
             <h2 id="founders-title" className="lp-title">Built by Those Who Understand</h2>
             <p className="lp-subtitle" style={{ marginBottom: 32 }}>Our founders turned personal health battles into a mission for every woman.</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
+            <StaggerContainer style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
               {FOUNDERS.map((f) => (
-                  <article key={f.name} className="lp-card" style={{ padding: 28, textAlign: 'center', border: '1px solid #E5E7EB' }}>
+                  <StaggerItem key={f.name}>
+                  <article className="lp-card" style={{ padding: 28, textAlign: 'center', border: '1px solid #E5E7EB' }}>
                     <Image src={f.image} alt={f.name} width={72} height={72} style={{ borderRadius: '50%', objectFit: 'cover', margin: '0 auto 16px' }} />
                     <h3 style={{ fontWeight: 700, color: '#111827', fontSize: '1rem' }}>{f.name}</h3>
                     <p style={{ color: '#BB2026', fontSize: '0.82rem', fontWeight: 600, marginTop: 2 }}>{f.title}</p>
                     <div style={{ marginTop: 12, padding: '8px 12px', background: '#FEF2F2', borderRadius: 8, fontSize: '0.85rem', color: '#BB2026', fontWeight: 500, lineHeight: 1.4 }}>{f.story}</div>
                     <p style={{ color: '#6B7280', fontSize: '0.8rem', marginTop: 12, lineHeight: 1.5 }}>{f.credential}</p>
                   </article>
+                  </StaggerItem>
               ))}
-            </div>
+            </StaggerContainer>
             <div style={{ marginTop: 28, borderTop: '1px solid #E5E7EB', paddingTop: 20 }}>
               <p style={{ color: '#6B7280', fontSize: '0.85rem', fontStyle: 'italic' }}>&ldquo;Every woman deserves complete, compassionate care.&rdquo;</p>
-              <p style={{ color: '#9CA3AF', fontSize: '0.78rem', marginTop: 4 }}>&mdash; The Newmi Team</p>
+              <p style={{ color: '#6B7280', fontSize: '0.78rem', marginTop: 4 }}>&mdash; The Newmi Team</p>
             </div>
           </div>
-        </section>
+        </ScrollReveal>
 
-        <section className="lp-section" id="faq" aria-labelledby="faq-title">
-          <div className="lp-container" style={{ maxWidth: 800 }}>
-            <h2 id="faq-title" className="lp-title">Frequently Asked Questions</h2>
-            <p className="lp-subtitle">Quick answers to common questions about our services.</p>
-            <Accordion type="single" collapsible>
-              {FAQ_ITEMS.map((item, i) => (
-                <AccordionItem key={i} value={`faq-${i}`}>
-                  <AccordionTrigger style={{ fontSize: '0.9rem', color: '#111827' }}>{item.q}</AccordionTrigger>
-                  <AccordionContent style={{ color: '#6B7280', fontSize: '0.85rem', lineHeight: 1.6 }}>{item.a}</AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
-        </section>
+        <FaqSection />
 
-        <section id="contact" style={{ background: 'linear-gradient(135deg, #BB2026 0%, #9c151c 100%)', padding: '72px 0', textAlign: 'center', color: 'white' }} aria-labelledby="cta-title">
+        <ScrollReveal as="section" variant="scaleIn" id="contact" style={{ background: 'linear-gradient(135deg, #BB2026 0%, #9c151c 100%)', padding: '72px 0', textAlign: 'center', color: 'white' }} aria-labelledby="cta-title">
           <div className="lp-container" style={{ maxWidth: 640 }}>
             <h2 id="cta-title" style={{ fontSize: '1.8rem', fontWeight: 700, lineHeight: 1.3 }}>Book Your Consultation Today</h2>
             <p style={{ marginTop: 10, fontSize: '0.95rem', opacity: 0.85, lineHeight: 1.5 }}>Take the first step towards better health. Our specialists are just a click away.</p>
@@ -1126,10 +1121,10 @@ export function LandingPage() {
               <span style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }} onClick={() => openBooking()}><MessageCircle size={14} /> Chat on WhatsApp</span>
             </div>
           </div>
-        </section>
+        </ScrollReveal>
 
         {/* Smart Newsletter Section (B8) */}
-        <section className="lp-section" id="newsletter" aria-labelledby="nl-title" style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E7EB' }}>
+        <ScrollReveal as="section" className="lp-section" id="newsletter" aria-labelledby="nl-title" style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E7EB' }}>
           <div className="lp-container" style={{ textAlign: 'center', maxWidth: 520 }}>
             <h2 id="nl-title" style={{ fontSize: '1.2rem', fontWeight: 700, color: '#111827', marginBottom: 6 }}>Stay Informed</h2>
             <p style={{ fontSize: '0.85rem', color: '#6B7280', lineHeight: 1.5, marginBottom: 20 }}>Weekly tips, expert articles, and updates on women&apos;s health straight to your inbox.</p>
@@ -1149,9 +1144,9 @@ export function LandingPage() {
                 </button>
               </form>
             )}
-            <p style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: 10 }}>We respect your privacy. Unsubscribe anytime.</p>
+            <p style={{ fontSize: '0.75rem', color: '#6B7280', marginTop: 10 }}>We respect your privacy. Unsubscribe anytime.</p>
           </div>
-        </section>
+        </ScrollReveal>
       </main>
 
       <div style={{ display: showSticky && !bookingOpen && stickyVisible ? 'flex' : 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: '#BB2026', padding: '8px 16px', zIndex: 40, boxShadow: '0 -4px 20px rgba(0,0,0,0.15)', alignItems: 'center', justifyContent: 'center', height: 56, gap: 8 }}
@@ -1182,21 +1177,21 @@ export function LandingPage() {
               <p style={{ marginTop: 12, color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>India&apos;s leading women&apos;s health platform</p>
             </div>
             <div>
-              <h4 style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, marginBottom: 12 }}>Quick Links</h4>
+              <h3 style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, marginBottom: 12 }}>Quick Links</h3>
               {[{ l: 'About', id: 'founders' }, { l: 'Our Specialities', id: 'conditions' }, { l: 'Meet Our Doctors', id: 'doctors' }, { l: 'How It Works', id: 'how-we-help' }, { l: 'Why Newmi Care', id: 'why-newmi' }].map(({ l, id }) => <p key={l} style={{ marginBottom: 6 }}><a href={`#${id}`} onClick={(e) => { e.preventDefault(); scrollTo(id) }} style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.82rem', cursor: 'pointer' }}>{l}</a></p>)}
             </div>
             <div>
-              <h4 style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, marginBottom: 12 }}>Services</h4>
+              <h3 style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, marginBottom: 12 }}>Services</h3>
               {[{ l: 'PCOS/PCOD', id: 'conditions' }, { l: 'Fertility', id: 'conditions' }, { l: 'Pregnancy', id: 'conditions' }, { l: 'Menopause', id: 'conditions' }, { l: 'Mental Health', id: 'conditions' }].map(({ l, id }) => <p key={l} style={{ marginBottom: 6 }}><a href={`#${id}`} onClick={(e) => { e.preventDefault(); scrollTo(id) }} style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.82rem', cursor: 'pointer' }}>{l}</a></p>)}
             </div>
             <div>
-              <h4 style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, marginBottom: 12 }}>Contact</h4>
+              <h3 style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, marginBottom: 12 }}>Contact</h3>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', marginBottom: 4 }}>+91-8929345355</p>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', marginBottom: 4 }}>care@newmi.in</p>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem' }}>Gurugram, Haryana</p>
             </div>
             <div>
-              <h4 style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, marginBottom: 12 }}>Follow Us</h4>
+              <h3 style={{ color: 'white', fontSize: '0.85rem', fontWeight: 600, marginBottom: 12 }}>Follow Us</h3>
               <div style={{ display: 'flex', gap: 12 }}>
                 <a href="https://www.instagram.com/newmicare/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" style={{ color: 'rgba(255,255,255,0.6)' }}><Instagram size={20} /></a>
                 <a href="https://www.facebook.com/in.newmi" target="_blank" rel="noopener noreferrer" aria-label="Facebook" style={{ color: 'rgba(255,255,255,0.6)' }}><Facebook size={20} /></a>
