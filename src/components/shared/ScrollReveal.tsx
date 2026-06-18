@@ -54,12 +54,13 @@ export default function ScrollReveal({
   once = true,
   as: Tag = 'div',
   style,
-}: ScrollRevealProps) {
+  ...rest
+}: ScrollRevealProps & Record<string, any>) {
   const isReduced = useReducedMotion()
   const config = variantConfig[variant]
 
   if (isReduced) {
-    return <Tag className={className} style={style}>{children}</Tag>
+    return <Tag className={className} style={style} {...rest}>{children}</Tag>
   }
 
   const MotionTag = motion[Tag as keyof typeof motion] as any
@@ -68,6 +69,7 @@ export default function ScrollReveal({
     <MotionTag
       className={className}
       style={style}
+      {...rest}
       initial={config.hidden}
       whileInView={config.visible}
       viewport={{ once, margin: '-80px' }}
