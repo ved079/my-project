@@ -19,6 +19,7 @@ import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from '@/components/ui/tooltip'
 import ScrollReveal, { StaggerContainer, StaggerItem } from '@/components/shared/ScrollReveal'
+import { ViewToggle } from '@/components/layout/ViewToggle'
 
 const BookingModal = dynamic(() => import('@/components/BookingModal').then(m => m.BookingModal), { ssr: false })
 const SymptomCheckerWidget = dynamic(() => import('@/components/SymptomCheckerWidget').then(m => m.SymptomCheckerWidget), { ssr: false })
@@ -643,8 +644,7 @@ export function LandingPage() {
             ))}
           </nav>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <button onClick={() => window.location.href = '/dashboard'} style={{ background: 'none', border: 'none', color: '#6B7280', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', padding: '4px 8px' }}>Admin</button>
-            <button onClick={() => window.location.href = '/dashboard?tab=riya'} style={{ background: 'none', border: 'none', color: '#6B7280', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', padding: '4px 8px' }}>Riya</button>
+            <ViewToggle viewMode="landing" onViewChange={(v) => { if (v === 'admin') window.location.href = '/dashboard'; else if (v === 'riya') window.location.href = '/dashboard?tab=riya' }} />
             <button className="lp-cta-primary" onClick={() => openBooking()} style={{ padding: '8px 20px', fontSize: 14 }}>Book Consultation</button>
             <button onClick={() => setMenuOpen(!menuOpen)} style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer', color: '#111827' }} className="lp-mobile-menu-btn" aria-label={menuOpen ? 'Close menu' : 'Open menu'}>
               {menuOpen ? <X size={24} /> : <Menu size={24} />}
