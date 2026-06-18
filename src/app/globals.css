@@ -299,7 +299,7 @@ html { scroll-behavior: smooth; }
   color: var(--navy);
   font-weight: 600;
 }
-.topbar-demo-badge { display: inline-block; background: #991A1E; color: white; font-size: 0.6rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; letter-spacing: 0.05em; vertical-align: middle; margin: 0 4px; }
+.topbar-demo-badge { display: inline-block; background: #FEF2F2; color: #991A1E; font-size: 0.6rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; letter-spacing: 0.05em; vertical-align: middle; margin: 0 4px; }
 .dash-topbar-daterange {
   display: inline-flex;
   gap: 2px;
