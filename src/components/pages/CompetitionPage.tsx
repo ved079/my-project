@@ -67,7 +67,7 @@ export function CompetitionPage() {
           <ResponsiveContainer width="100%" height={180}>
             <PieChart>
               <Pie data={SHARED_KEYWORDS_DATA} dataKey="value" cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={2}>
-                {SHARED_KEYWORDS_DATA.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                {SHARED_KEYWORDS_DATA.map((entry, i) => <Cell key={i} fill={entry.color} aria-label={entry.name} />)}
               </Pie>
               <Tooltip contentStyle={tooltipStyle} />
             </PieChart>

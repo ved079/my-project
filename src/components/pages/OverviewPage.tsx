@@ -111,7 +111,7 @@ export function OverviewPage() {
           <ResponsiveContainer width="100%" height={180}>
             <PieChart>
               <Pie data={SOURCE_MIX} dataKey="value" cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={2}>
-                {SOURCE_MIX.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                {SOURCE_MIX.map((entry, i) => <Cell key={i} fill={entry.color} aria-label={entry.name} />)}
               </Pie>
               <Tooltip contentStyle={tooltipStyle} />
             </PieChart>
