@@ -7,7 +7,8 @@ import {
   MapPin, Video, Building2, Dumbbell, Brain, Flower2, Baby, HeartPulse,
   HandHeart, Moon, Ribbon, Stethoscope, Menu, X, Phone, Mail, MessageCircle,
   Quote, Activity, BookOpen, ClipboardCheck, FileText, Pill, TestTube,
-  Calendar,   Instagram, Facebook, Linkedin, Twitter, MessageSquare, Lock, Search, Sparkles, Clock, ChevronLeft, ChevronRight,
+  Calendar, Instagram, Facebook, Linkedin, Twitter, MessageSquare, Lock, Search, Sparkles, Clock, ChevronLeft, ChevronRight,
+  Play, ArrowUp,
 } from 'lucide-react'
 import { captureUTM, persistUTM } from '@/lib/utm'
 import { SPECIALISTS } from '@/lib/nivi/specialists'
@@ -24,6 +25,7 @@ import { ViewToggle } from '@/components/layout/ViewToggle'
 const BookingModal = dynamic(() => import('@/components/BookingModal').then(m => m.BookingModal), { ssr: false })
 const SymptomCheckerWidget = dynamic(() => import('@/components/SymptomCheckerWidget').then(m => m.SymptomCheckerWidget), { ssr: false })
 const HealthScoreQuiz = dynamic(() => import('@/components/HealthScoreQuiz').then(m => m.HealthScoreQuiz), { ssr: false })
+const NiviChatWidget = dynamic(() => import('@/components/NiviChatWidget').then(m => m.NiviChatWidget), { ssr: false })
 const FaqSection = dynamic(() => import('@/components/pages/FaqSection'), { ssr: false })
 
 const NAV_LINKS = [
@@ -192,6 +194,47 @@ const DOCTOR_PORTRAITS = [
   '/images/newmi/doctor-portrait-5.jpg',
 ]
 
+const COMPARISON_ROWS = [
+  { feature: 'Booking', newmi: 'Instant online booking, anytime', traditional: 'Call-in or walk-in only' },
+  { feature: 'Wait time', newmi: 'Same-day or next-day slots', traditional: '1–4 week wait typical' },
+  { feature: 'Specialist access', newmi: '5 specialists on one platform', traditional: 'Multiple referrals needed' },
+  { feature: 'Privacy & discretion', newmi: 'HIPAA-compliant, private rooms', traditional: 'Shared waiting areas' },
+  { feature: 'Follow-up care', newmi: 'Digital care plans + smart reminders', traditional: 'Manual re-booking required' },
+  { feature: 'Your health records', newmi: 'All records in one app, always accessible', traditional: 'Paper files, scattered clinics' },
+]
+
+const TRUST_MARQUEE_ITEMS = [
+  { label: 'HIPAA Compliant', img: '/images/newmi/hipaa-logo.jpg', icon: null },
+  { label: '4.9+ App Rating', img: '/images/newmi/practo-logo.jpeg', icon: null },
+  { label: 'ISO Certified', img: '/images/newmi/iso-logo.png', icon: null },
+  { label: '50,000+ Women Helped', img: null, icon: Heart },
+  { label: '5 Expert Specialists', img: null, icon: Stethoscope },
+  { label: '25+ Cities Covered', img: null, icon: MapPin },
+  { label: 'Same-Day Appointments', img: null, icon: Clock },
+  { label: 'HIPAA Compliant', img: '/images/newmi/hipaa-logo.jpg', icon: null },
+  { label: '4.9+ App Rating', img: '/images/newmi/practo-logo.jpeg', icon: null },
+  { label: 'ISO Certified', img: '/images/newmi/iso-logo.png', icon: null },
+  { label: '50,000+ Women Helped', img: null, icon: Heart },
+  { label: '5 Expert Specialists', img: null, icon: Stethoscope },
+  { label: '25+ Cities Covered', img: null, icon: MapPin },
+  { label: 'Same-Day Appointments', img: null, icon: Clock },
+]
+
+const HINDI_UI: Record<string, string> = {
+  'Book Free Consultation': 'परामर्श बुक करें',
+  'Check Your Health Score': 'स्वास्थ्य स्कोर जांचें',
+  'What We Treat': 'हम क्या उपचार करते हैं',
+  'Doctors': 'डॉक्टर',
+  'Care Plans': 'देखभाल योजनाएं',
+  'Impact': 'प्रभाव',
+  'Contact': 'संपर्क',
+  'Book Consultation': 'परामर्श बुक करें',
+  'Book Now — It\'s Free': 'अभी बुक करें — मुफ़्त',
+  'Our Specialists': 'हमारे विशेषज्ञ',
+  'Patient Stories': 'मरीज़ों की कहानियाँ',
+  'Why Choose Newmi Care?': 'न्यूमी केयर क्यों चुनें?',
+}
+
 function renderStars(rating: number) {
   const full = Math.floor(rating)
   const stars: React.ReactNode[] = []
@@ -254,6 +297,8 @@ export function LandingPage() {
     'Meera from Mumbai started her weight management plan',
   ])
   const [tickerIdx, setTickerIdx] = useState(0)
+  const [lang, setLang] = useState<'en' | 'hi'>('en')
+  const t = useCallback((key: string) => (lang === 'hi' && HINDI_UI[key]) ? HINDI_UI[key] : key, [lang])
 
   useEffect(() => {
     const utm = captureUTM()
@@ -644,8 +689,12 @@ export function LandingPage() {
             ))}
           </nav>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <div className="lp-lang-toggle" aria-label="Language toggle">
+              <button className={`lp-lang-btn${lang === 'en' ? ' active' : ''}`} onClick={() => setLang('en')} aria-pressed={lang === 'en'}>EN</button>
+              <button className={`lp-lang-btn${lang === 'hi' ? ' active' : ''}`} onClick={() => setLang('hi')} aria-pressed={lang === 'hi'}>हि</button>
+            </div>
             <ViewToggle viewMode="landing" onViewChange={(v) => { if (v === 'admin') window.location.href = '/dashboard'; else if (v === 'riya') window.location.href = '/dashboard?tab=riya' }} />
-            <button className="lp-cta-primary" onClick={() => openBooking()} style={{ padding: '8px 20px', fontSize: 14 }}>Book Consultation</button>
+            <button className="lp-cta-primary" onClick={() => openBooking()} style={{ padding: '8px 20px', fontSize: 14 }}>{t('Book Consultation')}</button>
             <button onClick={() => setMenuOpen(!menuOpen)} style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer', color: '#111827' }} className="lp-mobile-menu-btn" aria-label={menuOpen ? 'Close menu' : 'Open menu'}>
               {menuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -661,43 +710,77 @@ export function LandingPage() {
       </header>
 
       <main id="main-content" style={{ position: 'relative' }}>
-        <section className="lp-hero" id="hero" aria-labelledby="hero-title">
-          <div className="lp-container" style={{ paddingTop: 80, paddingBottom: 80, textAlign: 'center', position: 'relative' }}>
-            <span style={{ background: '#FEF2F2', color: '#BB2026', border: '1px solid #FBCFE8', borderRadius: 9999, fontSize: '0.8rem', fontWeight: 600, padding: '4px 14px', display: 'inline-block', letterSpacing: '0.02em' }}>
-              {heroTagline}
-            </span>
-            <h1 id="hero-title" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 800, color: '#111827', lineHeight: 1.15, marginTop: 20, letterSpacing: '-0.02em', whiteSpace: 'pre-line' }}>{heroHeading}</h1>
-            <p style={{ fontSize: '1.125rem', color: '#6B7280', marginTop: 12, maxWidth: 520, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.6 }}>
-              {heroSubtext}
-            </p>
+        <section className="lp-hero lp-hero--redesign" id="hero" aria-labelledby="hero-title">
+          <div className="lp-hero-mesh" aria-hidden="true">
+            <div className="lp-hero-mesh-accent" />
+          </div>
+          <div className="lp-container">
+            <div className="lp-hero-grid">
+              {/* Left: headline + CTAs */}
+              <div className="lp-hero-content">
+                <div className="lp-hero-badge">
+                  <span className="lp-hero-badge-dot" aria-hidden="true" />
+                  {heroTagline}
+                </div>
+                <h1 id="hero-title" className="lp-display" style={{ fontSize: 'clamp(2rem, 4.5vw, 3.25rem)', fontWeight: 700, color: '#111827', lineHeight: 1.18, margin: 0, letterSpacing: '-0.01em', whiteSpace: 'pre-line' }}>
+                  {heroHeading}
+                </h1>
+                <p style={{ fontSize: '1.05rem', color: '#6B7280', marginTop: 16, maxWidth: 460, lineHeight: 1.65 }}>
+                  {heroSubtext}
+                </p>
+                <div style={{ marginTop: 28, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  <button onClick={() => openBooking()} style={{ padding: '13px 28px', background: '#BB2026', color: 'white', fontWeight: 700, fontSize: '0.95rem', borderRadius: 12, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 14px rgba(187,32,38,0.35)', display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+                    <MessageSquare size={15} /> {t('Book Free Consultation')}
+                  </button>
+                  <button onClick={() => setQuizOpen(true)} style={{ padding: '13px 22px', background: 'white', color: '#374151', fontWeight: 500, fontSize: '0.9rem', borderRadius: 12, border: '1.5px solid #E5E7EB', cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+                    <Activity size={15} /> {t('Check Your Health Score')}
+                  </button>
+                </div>
+                <div className="lp-hero-info-bar">
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <span ref={countRef} style={{ fontWeight: 700, color: '#BB2026' }}>{liveCount}</span>
+                    &nbsp;women consulted today
+                  </span>
+                  <span style={{ width: 1, height: 12, background: '#D1D5DB', flexShrink: 0 }} />
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: availabilityDot === 'green' ? '#22C55E' : availabilityDot === 'yellow' ? '#EAB308' : '#EF4444', display: 'inline-block', flexShrink: 0 }} />
+                    {availabilityText}
+                  </span>
+                  <span style={{ width: 1, height: 12, background: '#D1D5DB', flexShrink: 0 }} />
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                    {[0,1,2,3,4].map(i => <Star key={i} size={11} fill="#D97706" color="#D97706" />)}
+                    <strong style={{ color: '#374151', marginLeft: 2 }}>4.9+</strong>
+                  </span>
+                  <span style={{ width: 1, height: 12, background: '#D1D5DB', flexShrink: 0 }} />
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <Shield size={12} color="#6B7280" /> HIPAA Compliant
+                  </span>
+                </div>
+              </div>
 
-            <div style={{ marginTop: 24, display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button onClick={() => openBooking()} style={{ padding: '10px 24px', background: '#BB2026', color: 'white', fontWeight: 600, fontSize: '0.85rem', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
-                <MessageSquare size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} /> Book Free Consultation
-              </button>
-              <button onClick={() => setQuizOpen(true)} style={{ padding: '10px 20px', background: '#FFFFFF', color: '#374151', fontWeight: 500, fontSize: '0.85rem', borderRadius: 10, border: '1px solid #D1D5DB', cursor: 'pointer', fontFamily: 'inherit' }}>
-                <Activity size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} /> Check Your Health Score
-              </button>
-            </div>
-            <div style={{ marginTop: 28, padding: '14px 20px', background: '#F9FAFB', borderRadius: 14, border: '1px solid #F3F4F6', maxWidth: 520, marginLeft: 'auto', marginRight: 'auto' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, flexWrap: 'wrap', fontSize: '0.82rem', color: '#6B7280' }}>
-                <span ref={countRef} style={{ fontWeight: 700, color: '#BB2026' }}>{liveCount}</span> women consulted today
-                <span style={{ width: 1, height: 12, background: '#D1D5DB', margin: '0 8px' }} />
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: availabilityDot === 'green' ? '#22C55E' : availabilityDot === 'yellow' ? '#EAB308' : '#EF4444', display: 'inline-block' }} />
-                  {availabilityText}
-                </span>
-              </div>
-              <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, flexWrap: 'wrap', fontSize: '0.78rem', color: '#6B7280' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>{[0,1,2,3,4].map(i => <Star key={i} size={11} fill="#D97706" color="#D97706" />)}<strong style={{ color: '#374151', marginLeft: 2 }}>4.9+</strong> App Rating</span>
-                <span style={{ width: 1, height: 10, background: '#D1D5DB', margin: '0 8px' }} />
-                <Shield size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3, color: '#6B7280' }} /> HIPAA Compliant
-                <span style={{ width: 1, height: 10, background: '#D1D5DB', margin: '0 8px' }} />
-                10,000+ women helped
-              </div>
-              <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: '0.78rem', color: '#6B7280', borderTop: '1px solid #F3F4F6', paddingTop: 10 }}>
-                <Activity size={12} color="#22C55E" style={{ flexShrink: 0 }} />
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tickerMessages[tickerIdx]}</span>
+              {/* Right: image card with floating chips */}
+              <div className="lp-hero-image-col">
+                <div className="lp-hero-image-card">
+                  <Image
+                    src="/images/newmi/clinic-reception.jpg"
+                    alt="Newmi Care clinic — welcoming reception in Gurugram"
+                    width={480} height={460}
+                    priority
+                    style={{ objectFit: 'cover', objectPosition: 'center center', width: '100%', height: 420, display: 'block' }}
+                  />
+                  <div className="lp-hero-stat-chip">
+                    {[0,1,2,3,4].map(i => <Star key={i} size={12} fill="#D97706" color="#D97706" />)}
+                    <span style={{ marginLeft: 2 }}>4.9+ Rating</span>
+                  </div>
+                  <div className="lp-hero-stat-chip-2">
+                    <Heart size={14} color="#BB2026" />
+                    <span>50,000+ Women Helped</span>
+                  </div>
+                  <div className="lp-hero-ticker-strip">
+                    <Activity size={12} color="#22C55E" style={{ flexShrink: 0 }} />
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tickerMessages[tickerIdx]}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -792,7 +875,7 @@ export function LandingPage() {
 
         <ScrollReveal as="section" className="lp-section" id="why-newmi" aria-labelledby="why-title">
           <div className="lp-container">
-            <h2 id="why-title" className="lp-title">Why Choose Newmi Care?</h2>
+            <h2 id="why-title" className="lp-title">{t('Why Choose Newmi Care?')}</h2>
             <p className="lp-subtitle">We provide compassionate, expert care tailored to every woman&apos;s health journey.</p>
             <div className="lp-grid-2" style={{ alignItems: 'center', gap: 40 }}>
               <ScrollReveal variant="slideLeft" className="w-full">
@@ -803,15 +886,69 @@ export function LandingPage() {
                   const Icon = item.icon
                   return (
                     <StaggerItem key={item.title}>
-                      <article className="lp-card" style={{ padding: 20 }}>
+                      <article className="lp-card lp-card--bento" style={{ padding: 24 }}>
                         <div className="lp-icon-circle"><Icon size={22} /></div>
-                        <h3 style={{ marginTop: 10, fontWeight: 600, color: '#111827', fontSize: '0.9rem' }}>{item.title}</h3>
-                        <p style={{ marginTop: 4, color: '#6B7280', fontSize: '0.82rem', lineHeight: 1.5 }}>{item.desc}</p>
+                        <h3 style={{ marginTop: 12, fontWeight: 700, color: '#111827', fontSize: '0.95rem' }}>{item.title}</h3>
+                        <p style={{ marginTop: 6, color: '#6B7280', fontSize: '0.83rem', lineHeight: 1.6 }}>{item.desc}</p>
                       </article>
                     </StaggerItem>
                   )
                 })}
               </StaggerContainer>
+            </div>
+          </div>
+        </ScrollReveal>
+
+        {/* Newmi vs Traditional Clinics comparison */}
+        <ScrollReveal as="section" className="lp-section" id="vs-comparison" aria-labelledby="vs-title" style={{ background: '#F9FAFB' }}>
+          <div className="lp-container">
+            <h2 id="vs-title" className="lp-title">Newmi Care vs Traditional Clinics</h2>
+            <p className="lp-subtitle">See why thousands of women across India choose Newmi for a smarter, more comfortable healthcare experience.</p>
+            {/* Desktop table */}
+            <table className="lp-comparison-table" aria-label="Newmi Care vs Traditional Clinics comparison">
+              <thead>
+                <tr>
+                  <th style={{ width: '28%' }}>Feature</th>
+                  <th className="lp-col-newmi" style={{ width: '36%' }}>✦ Newmi Care</th>
+                  <th style={{ width: '36%' }}>Traditional Clinic</th>
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARISON_ROWS.map((row) => (
+                  <tr key={row.feature}>
+                    <td style={{ fontWeight: 600, color: '#111827' }}>{row.feature}</td>
+                    <td className="lp-col-newmi">
+                      <span className="lp-comparison-check"><CheckCircle size={15} />{row.newmi}</span>
+                    </td>
+                    <td>
+                      <span className="lp-comparison-cross"><X size={15} />{row.traditional}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {/* Mobile stacked cards */}
+            <div className="lp-comparison-mobile" style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 24 }}>
+              {COMPARISON_ROWS.map((row) => (
+                <div key={row.feature} className="lp-card" style={{ padding: '16px 20px' }}>
+                  <p style={{ fontWeight: 700, color: '#111827', fontSize: '0.9rem', marginBottom: 10 }}>{row.feature}</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    <div style={{ background: '#FEF2F2', borderRadius: 10, padding: '10px 12px' }}>
+                      <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#BB2026', marginBottom: 4 }}>✦ Newmi Care</p>
+                      <p style={{ fontSize: '0.82rem', color: '#111827' }}>{row.newmi}</p>
+                    </div>
+                    <div style={{ background: '#F9FAFB', borderRadius: 10, padding: '10px 12px' }}>
+                      <p style={{ fontSize: '0.7rem', fontWeight: 600, color: '#6B7280', marginBottom: 4 }}>Traditional</p>
+                      <p style={{ fontSize: '0.82rem', color: '#6B7280' }}>{row.traditional}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ textAlign: 'center', marginTop: 36 }}>
+              <button className="lp-cta-primary" onClick={() => openBooking()}>
+                {t('Book Free Consultation')}
+              </button>
             </div>
           </div>
         </ScrollReveal>
@@ -853,7 +990,7 @@ export function LandingPage() {
 
         <ScrollReveal as="section" className="lp-section lp-section-alt" id="doctors" aria-labelledby="doctors-title">
           <div className="lp-container">
-            <h2 id="doctors-title" className="lp-title">Our Specialists</h2>
+            <h2 id="doctors-title" className="lp-title">{t('Our Specialists')}</h2>
             <p className="lp-subtitle">Experienced and compassionate doctors dedicated to your well-being.</p>
             <StaggerContainer className="lp-grid-3">
               {SPECIALISTS.map((doc, idx) => (
@@ -909,23 +1046,27 @@ export function LandingPage() {
                 </StaggerItem>
               ))}
             </StaggerContainer>
-            <div style={{ marginTop: 36, paddingTop: 28, borderTop: '1px solid #E5E7EB' }}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 28, justifyContent: 'center', alignItems: 'center' }}>
-                {TRUST_BADGES.map((badge) => {
-                  if (badge.img) {
+            <div style={{ marginTop: 40, paddingTop: 28, borderTop: '1px solid #E5E7EB' }}>
+              <p style={{ textAlign: 'center', fontSize: '0.75rem', fontWeight: 600, color: '#9CA3AF', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>Trusted & Certified</p>
+              <div className="lp-marquee-wrapper">
+                <div className="lp-marquee-track">
+                  {TRUST_MARQUEE_ITEMS.map((item, i) => {
+                    if (item.icon) {
+                      const MIcon = item.icon
+                      return (
+                        <div key={i} className="lp-marquee-item">
+                          <MIcon size={15} color="#BB2026" /> {item.label}
+                        </div>
+                      )
+                    }
                     return (
-                      <div key={badge.label} style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#6B7280', fontSize: '0.82rem', fontWeight: 500 }}>
-                        <Image src={badge.img} alt={badge.label} width={22} height={22} style={{ objectFit: 'contain', borderRadius: 2 }} /> {badge.label}
+                      <div key={i} className="lp-marquee-item">
+                        <Image src={item.img!} alt={item.label} width={18} height={18} style={{ objectFit: 'contain', borderRadius: 2 }} />
+                        {item.label}
                       </div>
                     )
-                  }
-                  const BIcon = badge.icon!
-                  return (
-                    <div key={badge.label} style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#6B7280', fontSize: '0.82rem', fontWeight: 500 }}>
-                      <BIcon size={16} color="#6B7280" /> {badge.label}
-                    </div>
-                  )
-                })}
+                  })}
+                </div>
               </div>
             </div>
           </div>
@@ -1044,8 +1185,42 @@ export function LandingPage() {
 
         <ScrollReveal as="section" className="lp-section lp-section-alt" id="testimonials" aria-labelledby="testimonials-title">
           <div className="lp-container" style={{ textAlign: 'center' }}>
-            <h2 id="testimonials-title" className="lp-title">Patient Stories</h2>
+            <h2 id="testimonials-title" className="lp-title">{t('Patient Stories')}</h2>
             <p className="lp-subtitle">Real experiences from women who trust Newmi Care.</p>
+            {/* Featured video testimonial */}
+            <div style={{ maxWidth: 680, margin: '0 auto 40px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'stretch' }}>
+              <button
+                className="lp-video-card"
+                onClick={() => openBooking()}
+                aria-label="Watch patient testimonial — click to book consultation"
+                style={{ border: 'none', padding: 0, textAlign: 'left', background: 'none', display: 'block', width: '100%' }}
+              >
+                <Image
+                  src="/images/newmi/doctor-portrait-1.jpg"
+                  alt="Newmi Care patient story"
+                  width={340} height={220}
+                  style={{ objectFit: 'cover', width: '100%', height: 220, display: 'block' }}
+                />
+                <div className="lp-video-play-btn" aria-hidden="true"><Play size={22} fill="#BB2026" /></div>
+                <div className="lp-video-label">
+                  <p style={{ fontWeight: 700, fontSize: '0.88rem', marginBottom: 2 }}>&ldquo;Newmi changed my life&rdquo;</p>
+                  <p style={{ fontWeight: 400, fontSize: '0.75rem', opacity: 0.85 }}>Priya M. · PCOS Treatment · Gurugram</p>
+                </div>
+              </button>
+              <div style={{ background: '#FEF2F2', borderRadius: 20, padding: '24px 20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ display: 'flex', gap: 2, marginBottom: 12 }}>{renderStars(5)}</div>
+                  <p style={{ fontSize: '0.9rem', color: '#374151', lineHeight: 1.7, fontStyle: 'italic' }}>&ldquo;After years of struggling with PCOS and being dismissed by other doctors, Newmi Care finally gave me a real treatment plan — and it worked.&rdquo;</p>
+                </div>
+                <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid #FBCFE8' }}>
+                  <p style={{ fontWeight: 700, color: '#111827', fontSize: '0.88rem' }}>Shreya K.</p>
+                  <p style={{ color: '#BB2026', fontSize: '0.78rem', fontWeight: 500, marginTop: 2 }}>PCOS Treatment · 8 months ago</p>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 8, background: '#F0FDF4', color: '#166534', fontSize: '0.7rem', fontWeight: 600, padding: '3px 10px', borderRadius: 9999 }}>
+                    <CheckCircle size={10} /> Verified Patient
+                  </div>
+                </div>
+              </div>
+            </div>
             <div style={{ position: 'relative', maxWidth: 520, margin: '0 auto' }}>
               {(() => {
                 const t = TESTIMONIALS[testimonialIdx]
@@ -1107,13 +1282,18 @@ export function LandingPage() {
 
         <FaqSection />
 
-        <ScrollReveal as="section" variant="scaleIn" id="contact" style={{ background: 'linear-gradient(135deg, #BB2026 0%, #9c151c 100%)', padding: '72px 0', textAlign: 'center', color: 'white' }} aria-labelledby="cta-title">
-          <div className="lp-container" style={{ maxWidth: 640 }}>
-            <h2 id="cta-title" style={{ fontSize: '1.8rem', fontWeight: 700, lineHeight: 1.3 }}>Book Your Consultation Today</h2>
-            <p style={{ marginTop: 10, fontSize: '0.95rem', opacity: 0.85, lineHeight: 1.5 }}>Take the first step towards better health. Our specialists are just a click away.</p>
-            <button style={{ marginTop: 28, background: 'white', color: '#BB2026', borderRadius: 12, padding: '14px 36px', fontWeight: 700, fontSize: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.15)', fontFamily: 'inherit', transition: 'transform 0.15s, box-shadow 0.15s' }}
+        <ScrollReveal as="section" variant="scaleIn" id="contact" style={{ background: 'linear-gradient(135deg, #BB2026 0%, #9c151c 100%)', padding: '80px 0', textAlign: 'center', color: 'white', position: 'relative', overflow: 'hidden' }} aria-labelledby="cta-title">
+          {/* Blob mesh on CTA */}
+          <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', top: -80, left: -80, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+            <div style={{ position: 'absolute', bottom: -60, right: -60, width: 360, height: 360, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+          </div>
+          <div className="lp-container" style={{ maxWidth: 640, position: 'relative', zIndex: 1 }}>
+            <h2 id="cta-title" className="lp-display" style={{ fontSize: '2rem', fontWeight: 700, lineHeight: 1.25 }}>Book Your Consultation Today</h2>
+            <p style={{ marginTop: 12, fontSize: '0.95rem', opacity: 0.85, lineHeight: 1.6 }}>Take the first step towards better health. Our specialists are just a click away.</p>
+            <button style={{ marginTop: 28, background: 'white', color: '#BB2026', borderRadius: 12, padding: '15px 40px', fontWeight: 700, fontSize: '1.05rem', border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(0,0,0,0.2)', fontFamily: 'inherit', transition: 'transform 0.15s, box-shadow 0.15s' }}
               onClick={() => openBooking()}>
-              Book Now &mdash; It&apos;s Free
+              {t('Book Now — It\'s Free')}
             </button>
             <div style={{ marginTop: 28, display: 'flex', gap: 24, justifyContent: 'center', flexWrap: 'wrap', fontSize: '0.85rem', opacity: 0.9 }}>
               <a href="tel:+918929345355" style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'inherit', textDecoration: 'none' }}><Phone size={14} /> +91-8929345355</a>
@@ -1159,15 +1339,17 @@ export function LandingPage() {
         </a>
       </div>
 
+      {showSticky && (
+        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top" className="lp-back-to-top" style={{ bottom: showSticky ? 140 : 88 }}>
+          <ArrowUp size={18} />
+        </button>
+      )}
       <button onClick={() => openWhatsApp()} aria-label="Chat on WhatsApp"
         style={{ position: 'fixed', bottom: showSticky ? 72 : 24, right: 20, width: 56, height: 56, borderRadius: '50%', background: '#25D366', color: 'white', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(37,211,102,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'bottom 0.3s ease', fontSize: 28 }}>
         <MessageCircle size={28} />
       </button>
 
-      <button onClick={() => setSymptomCheckOpen(true)} aria-label="Chat with Nivi AI"
-        style={{ position: 'fixed', bottom: showSticky ? 136 : 88, right: 20, width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #BB2026, #9c151c)', color: 'white', border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(187,32,38,0.3)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'bottom 0.3s ease', fontSize: 24 }}>
-        <MessageSquare size={24} />
-      </button>
+      <NiviChatWidget onBook={(condition) => { if (condition) setPreSelectedCondition(condition); setBookingOpen(true) }} />
 
       <footer className="lp-footer" role="contentinfo">
         <div className="lp-container">

@@ -1,12 +1,20 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Inter } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800", "900"],
+});
+
+const playfair = Playfair_Display({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["700"],
+  style: ["italic"],
+  display: "swap",
 });
 
 const BASE_URL = "https://newmi.in";
@@ -101,12 +109,12 @@ export default function RootLayout({
       <head>
         <Script id="dark-mode-init" strategy="beforeInteractive">{`(function(){try{var d=localStorage.getItem('newmi-dark');if(d==='true')document.documentElement.classList.add('dark')}catch(e){}})()`}</Script>
         <style>{`
-          .lp-hero{background:linear-gradient(180deg,#FEF2F2 0%,#F9FAFB 100%)}
+          .lp-hero{background:linear-gradient(180deg,#FEF2F2 0%,#F9FAFB 100%)}.lp-display{font-family:var(--font-display,Georgia,serif);font-style:italic}.lp-hero--redesign{background:linear-gradient(160deg,#FEF2F2 0%,#F9FAFB 60%,#FAFAFA 100%)!important}
           .lp-navbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid #E5E7EB}
           .lp-section{padding:80px 0}
           .lp-section-alt{background:#FEF2F2}
           .lp-container{max-width:1200px;margin:0 auto;padding:0 24px}
-          .lp-title{font-size:2.25rem;font-weight:700;color:#111827;text-align:center;letter-spacing:-0.01em}
+          .lp-title{font-size:2.25rem;font-weight:700;color:#111827;text-align:center;letter-spacing:-0.01em;font-family:var(--font-display,Georgia,serif);font-style:italic}
           .lp-subtitle{color:#5C6670;text-align:center;max-width:600px;margin:8px auto 40px;font-size:1rem;line-height:1.6}
           .lp-card{background:white;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
           .lp-cta-primary{background:#BB2026;color:white;border-radius:12px;padding:12px 28px;font-weight:600;font-size:0.95rem;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(187,32,38,0.3)}
@@ -118,7 +126,7 @@ export default function RootLayout({
           @media(max-width:768px){.lp-section{padding:48px 0}.lp-title{font-size:1.5rem}.lp-navbar .lp-nav-links{display:none}.lp-mobile-menu-btn{display:flex!important}.lp-hero h1{font-size:2rem!important}}
         `}</style>
       </head>
-      <body className={`${inter.variable} antialiased`}>{children}</body>
+      <body className={`${inter.variable} ${playfair.variable} antialiased`}>{children}</body>
     </html>
   );
 }
